@@ -1,0 +1,396 @@
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PROJECT
+OBJECT MODULE PLACED IN .\Output\Project.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Project\Project.c OMF2 OPTIMIZE(8,SPEED) BROWSE INCDIR(
+                    -.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\Project.lst) OBJECT(.\Output\Project.obj)
+
+line level    source
+
+   1          #include        "..\Application_Library\Global.h"
+   2          
+   3          
+   4          
+   5          
+   6          
+   7          
+   8          
+   9          
+  10          uchar   xdata   b_NOW_or_Target_cnt=0;//0:目标温度,5:现在温度
+  11          uchar   xdata   b_NOW_or_Target_cnt2=0;//0:目标温度,5:现在温度
+  12          //bit f_test_abc=0; //测试用
+  13          
+  14          
+  15          uchar   data    b_tbcheck=0;
+  16          
+  17          
+  18          bit             gf_check=0;
+  19          //uchar xdata   b_checkTime=0;
+  20          
+  21          #if test_en       
+              
+              bit             f_send_code=0;
+              uchar   xdata   b_send=0;
+              uint    xdata   b_code=0;
+              uchar   xdata   b_code_num=0;
+              
+              #endif
+  29          
+  30          
+  31          void    time_deal(void);
+  32          
+  33          
+  34          
+  35          /****************************************************************/
+  36          //函数名：void Project(void)
+  37          //功  能：项目项目功能函数
+  38          //参  数：无
+  39          //返回值：无
+  40          /****************************************************************/
+  41          void Project(void)
+  42          {
+  43   1              if(gb_20ms>=20)
+  44   1              {
+  45   2              gb_20ms-=20;   //20ms基准
+  46   2        
+  47   2              if(gf_check)
+  48   2              {
+  49   3                  key_deal();
+  50   3                  work_deal();
+  51   3                  warning_check();
+  52   3              }
+  53   2                      #if   buz_en
+  54   2                      buz_deal();
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 2   
+
+  55   2                      #endif
+  56   2                      check_deal();
+  57   2      
+  58   2                //==hore_check(); //按钮自检
+  59   2        
+  60   2                      #if   ad_en
+  61   2                      lab_ad_fun();//OK
+  62   2                      #endif
+  63   2                      //codingSwitch_deal1(); //编码开关1处理
+  64   2                      //codingSwitch_deal2(); //编码开关2处理
+  65   2                      time_deal();
+  66   2                      display_deal();
+  67   2                
+  68   2                      #if     (c_TM1628_EN || c_TM1629_EN)    
+                              TM1628_sendData();
+                              #endif  
+  71   2      
+  72   2      
+  73   2          }
+  74   1              
+  75   1      }
+  76          
+  77          
+  78          /*-----------------------------------------------------------------
+  79          函数名称： void time_deal(void)
+  80          函数功能： 时间处理函数，处理所有的时间变量
+  81          输入参数： 无
+  82          返 回 值： 无
+  83          -----------------------------------------------------------------*/
+  84          
+  85          void    time_deal()
+  86          {
+  87   1        
+  88   1              /*闪烁计时*/
+  89   1          if(++gb_flashTime>=25)
+  90   1          {
+  91   2              gb_flashTime=0;
+  92   2              gf_flash = !gf_flash;
+  93   2          }
+  94   1      
+  95   1      
+  96   1              if(b_force_flash_cnt<250)
+  97   1                      b_force_flash_cnt++;    //强制闪烁计数
+  98   1      
+  99   1      
+ 100   1              if(b_clock_key<250)     //运行过程中,无按键按下,1s后锁键
+ 101   1                      b_clock_key++;
+ 102   1              if(f_mjs_set || !b_mode)
+ 103   1              {
+ 104   2                      b_clock_key=0;
+ 105   2                      f_clock_key=0;
+ 106   2              }
+ 107   1                      
+ 108   1              if(b_clock_key>=60)     //上锁时间
+ 109   1                      f_clock_key=1;
+ 110   1              
+ 111   1              if(f_clock_key==1)
+ 112   1              {
+ 113   2                      if(f_mjs_yuyue)
+ 114   2                      {
+ 115   3                              f_disp_yuyue=1;
+ 116   3                      }
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 3   
+
+ 117   2      
+ 118   2                      /*保温模式上锁的时候,时间为零,自动退出*/
+ 119   2                      if(b_mode==0x80 && f_mjs_power)
+ 120   2                      {
+ 121   3                              if((b_dingshi_hour==0) && (b_dingshi_min==0) )
+ 122   3                              {
+ 123   4                                      quit_work();    
+ 124   4                                      /*特殊处理*/
+ 125   4                                      /*大于200说明已经是倒计时结束关机的,而不是手动关机的*/
+ 126   4                                      if(b_clock_key>=200)
+ 127   4                                      {
+ 128   5                                              open_buz(3);    //工作完成音
+ 129   5                                      }
+ 130   4                              }       
+ 131   3      
+ 132   3      
+ 133   3      
+ 134   3      
+ 135   3                      }
+ 136   2              }
+ 137   1      
+ 138   1      
+ 139   1              ///*测试计时*/
+ 140   1          //gb_200ms++;
+ 141   1          //if(gb_200ms>=25)
+ 142   1          //{
+ 143   1          //    gb_200ms=0;
+ 144   1          //    if(b_test<0xff)
+ 145   1          //      b_test++;
+ 146   1          //    if(b_test>=5)
+ 147   1          //      b_test=0;
+ 148   1          //}
+ 149   1      
+ 150   1          if(b_checkTime<0xff)
+ 151   1            b_checkTime++;
+ 152   1      
+ 153   1              /*继电器驱动计时*/
+ 154   1          gb_100ms++;
+ 155   1          if(gb_100ms>=5)     
+ 156   1          {
+ 157   2              gb_100ms=0;
+ 158   2                      #if test_en        
+                          f_send_code=1;
+                          b_send=0;
+                          b_code_num=0;
+                          b_code=b_disp_test*256+b_disp_test2;
+                              #endif
+ 164   2      
+ 165   2                      #if out_en
+ 166   2                  relay_deal();   //继电器驱动
+ 167   2                      #endif
+ 168   2      
+ 169   2          }
+ 170   1      
+ 171   1              
+ 172   1              /*1s执行一次*/
+ 173   1          gb_1s++;
+ 174   1          if(gb_1s>=50)
+ 175   1          {
+ 176   2              gb_1s=0;        //1s基准
+ 177   2      
+ 178   2      
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 4   
+
+ 179   2      
+ 180   2      
+ 181   2              b_led_slide1 ++;                         //显示流水计时
+ 182   2              if(b_led_slide1 >= 10)
+ 183   2                  b_led_slide1 = 0;
+ 184   2      
+ 185   2                      /*设置计数*/
+ 186   2              if(b_mjs_set_sec<0xff)
+ 187   2                  b_mjs_set_sec++;                    //工作流程计时
+ 188   2      
+ 189   2                      /*工作流程计数*/        
+ 190   2              if(b_ctrl_sec_3<0xff)
+ 191   2                  b_ctrl_sec_3++;
+ 192   2              if(b_ctrl_sec_2<800)
+ 193   2                  b_ctrl_sec_2++;
+ 194   2              if(b_ctrl_sec_1<0xff)
+ 195   2                  b_ctrl_sec_1++;
+ 196   2              
+ 197   2              //目标温度,现在温度转换时间累加
+ 198   2              b_NOW_or_Target_cnt++;
+ 199   2              if(b_NOW_or_Target_cnt>=c_NOW_or_Target_cnt_MAX)
+ 200   2                b_NOW_or_Target_cnt=0;
+ 201   2      
+ 202   2      
+ 203   2                      /*报错相关计时*/
+ 204   2              if(b_error_sec<0xff)
+ 205   2                b_error_sec++;
+ 206   2              if(b_error_sec_1<0xff)  
+ 207   2                b_error_sec_1++;
+ 208   2              if(b_error_e3<0xff)
+ 209   2                  b_error_e3++;
+ 210   2      
+ 211   2      
+ 212   2      
+ 213   2              #if double_ad_channel
+                      if(b_temp_1_ref_sec<0xff)
+                          b_temp_1_ref_sec++;
+                      #endif
+ 217   2      
+ 218   2      
+ 219   2                      /*保温计时*/
+ 220   2                      if((b_mode&0x80) && (f_mjs_power))
+ 221   2              b_baowen_sec++;                                                  //保温时间
+ 222   2              if(b_baowen_sec>=60)    //缩时60 2
+ 223   2              {
+ 224   3                  b_baowen_sec=0;
+ 225   3                  b_baowen_min++;
+ 226   3                  if(b_baowen_min>=60)        //缩时60 2
+ 227   3                  {
+ 228   4                      b_baowen_min=0;
+ 229   4                      b_baowen_hour++;
+ 230   4                  }
+ 231   3              }
+ 232   2      
+ 233   2                      // /*预约计时*/
+ 234   2               b_yuyue_sec++;                                                  //预约时间
+ 235   2               if(b_yuyue_sec>=60)  //缩时60
+ 236   2               {
+ 237   3                   b_yuyue_sec=0;
+ 238   3                   if(b_yuyue_min||b_yuyue_hour)
+ 239   3                   {
+ 240   4                       if(b_yuyue_min)
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 5   
+
+ 241   4                           b_yuyue_min--;
+ 242   4                       else
+ 243   4                       {
+ 244   5                           b_yuyue_min=59;
+ 245   5                           b_yuyue_hour--;
+ 246   5                       }
+ 247   4                   }
+ 248   3               }
+ 249   2      
+ 250   2                      ///*预约计时*/
+ 251   2              //b_yuyue_sec++;                                                         //预约时间
+ 252   2              //if(b_yuyue_sec>=60)  //缩时60 2
+ 253   2              //{
+ 254   2              //    b_yuyue_sec=0;
+ 255   2                      //      b_yuyue_min++;
+ 256   2                      //      if (b_yuyue_min>=60)    //缩时60 2
+ 257   2                      //      {
+ 258   2                      //              b_yuyue_min=0;
+ 259   2                      //              if (b_yuyue_hour>0)
+ 260   2                      //              {
+ 261   2                      //                      b_yuyue_hour--;
+ 262   2                      //              }
+ 263   2                      //
+ 264   2                      //      }
+ 265   2              //}
+ 266   2      
+ 267   2      
+ 268   2              if(b_mode!=5)
+ 269   2              {
+ 270   3                      /*定时计时*/
+ 271   3                      if(f_mjs_power)
+ 272   3                      b_dingshi_sec++;                                                           //定时时间
+ 273   3              if(b_dingshi_sec>=60)   //缩时60 2
+ 274   3              {
+ 275   4                  b_dingshi_sec=0;
+ 276   4                  if(b_dingshi_min||b_dingshi_hour)
+ 277   4                  {
+ 278   5                      if(b_dingshi_min)
+ 279   5                          b_dingshi_min--;
+ 280   5                      else
+ 281   5                      {
+ 282   6                          b_dingshi_min=59;   //缩时59
+ 283   6                          b_dingshi_hour--;
+ 284   6                      }
+ 285   5                  }
+ 286   4              }
+ 287   3              }
+ 288   2              
+ 289   2              else
+ 290   2              {
+ 291   3                      /*定时计时*/
+ 292   3                      
+ 293   3              b_dingshi_sec++;                                                           //定时时间
+ 294   3              if(!f_mjs_power)
+ 295   3                              b_dingshi_sec=0;        
+ 296   3                      if(b_dingshi_sec>=1)   //缩时60 2
+ 297   3              {
+ 298   4                  b_dingshi_sec=0;
+ 299   4                  if(b_dingshi_min||b_dingshi_hour)
+ 300   4                  {
+ 301   5                      if(b_dingshi_min)
+ 302   5                          b_dingshi_min--;
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 6   
+
+ 303   5                      else
+ 304   5                      {
+ 305   6                          b_dingshi_min=59;   //缩时59
+ 306   6                          b_dingshi_hour--;
+ 307   6                      }
+ 308   5                  }
+ 309   4              }
+ 310   3              }
+ 311   2      
+ 312   2      
+ 313   2                      /**/
+ 314   2      //              b_time_grade_cnt++;     //0:档位,5:时间
+ 315   2      //              if(b_time_grade_cnt>=10)
+ 316   2      //              {
+ 317   2      //                      /*定时闪烁完后,如定时时间为0,则关闭定时模式*/
+ 318   2      //                      if(f_disp_dingshi)
+ 319   2      //                      {
+ 320   2      //                              open_buz(4);    //工作开始音
+ 321   2      //                              f_dingshi_begin=1;//开始计时
+ 322   2      //                              /*启动计时,时间为0,则取消计时*/
+ 323   2      //                              if(!b_dingshi_min)
+ 324   2      //                              {
+ 325   2      //                                      f_mjs_dingshi=0;        //退出定时状态
+ 326   2      //                                      f_dingshi_begin=0;//关闭倒计时
+ 327   2      //                              }
+ 328   2      //                      }
+ 329   2      //
+ 330   2      //                      b_time_grade_cnt=0;     //0:档位,5:时间
+ 331   2      //                      f_disp_dingshi=0;       //关定时显示
+ 332   2      //                      
+ 333   2      //              }
+ 334   2      
+ 335   2      //              //预约倒计时进行中时
+ 336   2      //              if(f_mjs_yuyue  && !f_mjs_set)
+ 337   2      //              {
+ 338   2      //                      if(b_yuyue_run_cnt<10)
+ 339   2      //                              b_yuyue_run_cnt++;      
+ 340   2      //                      if(b_yuyue_run_cnt==2)
+ 341   2      //                      {
+ 342   2      //                              f_disp_yuyue=1;
+ 343   2      //                      }
+ 344   2      //              }
+ 345   2      
+ 346   2      
+ 347   2      
+ 348   2      
+ 349   2      
+ 350   2      
+ 351   2          }
+ 352   1      }
+ 353          
+ 354          
+ 355          
+ 356          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    601    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      2    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+C51 COMPILER V9.60.0.0   PROJECT                                                           05/09/2023 16:49:08 PAGE 7   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

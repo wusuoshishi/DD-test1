@@ -1,0 +1,445 @@
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE BUZ
+OBJECT MODULE PLACED IN .\Output\Buz.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Application_Library\Buz.c OMF2 OPTIMIZE(8,SPEED) BROWSE
+                    - INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\Buz.lst) OBJECT(.\Output\Buz.obj)
+
+line level    source
+
+   1          
+   2          #include        "..\Application_Library\Global.h"
+   3          
+   4          
+   5          
+   6          typedef struct
+   7          {
+   8              unsigned char       on;             //打开时间(单位20ms)
+   9              unsigned char       all;    //总时间 (单位20ms)
+  10              unsigned char       cnt;    //响次数
+  11                  //unsigned char type;   //种类
+  12          } str_buz;
+  13          
+  14          
+  15          unsigned char   b_buzKind=0;    //蜂鸣器响声的种类
+  16          unsigned char   xdata   b_buzNum=0;
+  17          unsigned char   xdata   b_buzTable=0;
+  18          unsigned char   xdata   b_buzCnt=0;     //响的次数
+  19          unsigned char   xdata   b_buzType=0;//蜂鸣器响声的类别
+  20          
+  21          unsigned char   xdata   b_buz_SP_cnt=0; //形成100ms
+  22          unsigned char   xdata   b_SP_n=0;       //特殊占空比
+  23          
+  24          
+  25          
+  26          
+  27          bit             f_buzFre=0;
+  28          bit             f_buzRun=0;     //0:蜂鸣器播放完成
+  29          bit             f_buzOn=0;
+  30          
+  31          
+  32          //str_buz  const        code    tab_buz[]=
+  33          //{
+  34          //      //单位20ms
+  35          //   //ON  ALL CNT      //此处定义种类
+  36          //    { 4, 6,  1,1},    //1.按键音 占空比8%时长80ms
+  37          //      { 12, 16, 4,2}, //2.报警音 4组 占空比15% 时长 240ms >> 停 80ms 
+  38          //      {33, 57,  1,3}, //3.开机音 占空比:从8%变化到0%时666ms 停480ms
+  39          //      { 4, 6,  2,4},  //4.进入工作音 占空比8%时长80ms >>停40ms >>从 8%变化到 0% 时长 666ms
+  40          //    { 4, 6,  8,4},    //5.完成音 4组 占空比8%时长80ms + 停 40ms + 从 8%变化到 0% 时长 600ms >> 480ms
+  41          //    
+  42          //    { 5, 25, 10,0},
+  43          //    {10, 50, 10,0},
+  44          //    {10, 50, 10,6},
+  45          //    { 5, 25, 10,6}
+  46          //};
+  47          
+  48          
+  49          str_buz  const  code    tab_buz[]=
+  50          {
+  51                  //单位20ms
+  52                  /*响的时间,总时间,次数*/
+  53              {8,16,1},   //按键音                                         //此处定义种类
+  54              {26,50,1}, //上电长鸣
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 2   
+
+  55              {8,25,5},   //功能完成
+  56              {5,10,3},
+  57              {5,10,3},
+  58              {10,50,10},
+  59              {10,50,10},
+  60              {10,50,10},
+  61              {5,25,10}
+  62          };
+  63          
+  64          
+  65          
+  66          /*-----------------------------------------------------------------
+  67          函数名称： void buz_ring(void)
+  68          函数功能： 响蜂鸣器,放中断
+  69          输入参数： 无
+  70          返 回 值： 无
+  71          -----------------------------------------------------------------*/
+  72          void    buz_ring()
+  73          {
+  74   1      #if     buz2K
+                  if(f_buzOn)
+                  {
+                      f_buzFre=~f_buzFre;
+                      if(f_buzFre)
+                      {
+                          if(p_buz_get)
+                          {
+                              p_buz_l;
+                          }
+                          else
+                          {
+                              p_buz_h;
+                          }
+                      }
+                  }
+              #else
+  91   1          if(f_buzOn)
+  92   1          {
+  93   2              if(p_buz_get)
+  94   2              {
+  95   3                  p_buz_l;
+  96   3              }
+  97   2              else
+  98   2              {
+  99   3                  p_buz_h;
+ 100   3              }
+ 101   2          }
+ 102   1      #endif
+ 103   1      }
+ 104          
+ 105          /*-----------------------------------------------------------------
+ 106          函数名称： void open_buz(unsigned char i)
+ 107          函数功能： 蜂鸣器响声音种类选择
+ 108          输入参数： 声音类型
+ 109          返 回 值： 无
+ 110          -----------------------------------------------------------------*/
+ 111          
+ 112          void    open_buz(unsigned char i)
+ 113          {
+ 114   1          b_buzKind=i;
+ 115   1      }
+ 116          
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 3   
+
+ 117          
+ 118          
+ 119          /*-----------------------------------------------------------------
+ 120          函数名称： void buz_deal(void)
+ 121          函数功能： 蜂鸣器响声音处理
+ 122          输入参数： 无
+ 123          返 回 值： 无
+ 124          -----------------------------------------------------------------*/
+ 125          
+ 126          void    buz_deal()
+ 127          {
+ 128   1          if(b_buzKind)
+ 129   1          {
+ 130   2              b_buzTable=b_buzKind-1;
+ 131   2              b_buzKind=0;
+ 132   2              b_buzCnt=tab_buz[b_buzTable].cnt;
+ 133   2              b_buzNum=0;
+ 134   2              f_buzOn=0;
+ 135   2              f_buzRun=1;
+ 136   2      
+ 137   2                      #if   c_ad_buz_com
+ 138   2              ADC_PD(1);//关闭ADC模块
+ 139   2              ADC_SCAN_CLR;
+ 140   2              ADC_IE_CLR;
+ 141   2              ADC_IO_SEL1=0;
+ 142   2              ADC_IO_SEL2=0;
+ 143   2              ADC_IO_SEL3=0;
+ 144   2              ADC_IO_SEL4=0;
+ 145   2                      #endif
+ 146   2          }
+ 147   1      
+ 148   1          if(f_buzRun)
+ 149   1          {
+ 150   2              b_buzNum++;
+ 151   2              if(b_buzNum<=tab_buz[b_buzTable].on)
+ 152   2              {
+ 153   3                  f_buzOn=1;
+ 154   3                  p_buz_out;
+ 155   3      
+ 156   3              }
+ 157   2              else
+ 158   2              {
+ 159   3                  f_buzOn=0;
+ 160   3                  buz_disEN;
+ 161   3              }
+ 162   2      
+ 163   2              if(b_buzNum==tab_buz[b_buzTable].all)
+ 164   2              {
+ 165   3                  b_buzCnt--;
+ 166   3                  b_buzNum=0;
+ 167   3                  if(b_buzCnt==0)
+ 168   3                  {
+ 169   4                      f_buzRun=0;
+ 170   4                      f_buzOn=0;
+ 171   4                      buz_disEN;
+ 172   4                  }
+ 173   3              }
+ 174   2          }
+ 175   1      
+ 176   1      }
+ 177          
+ 178          
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 4   
+
+ 179          
+ 180          /*特殊处理,用PWM驱动*/
+ 181          //void  buz_deal()
+ 182          //{
+ 183          //    if(b_buzKind)
+ 184          //    {
+ 185          //              /*获取该种种类的信息*/
+ 186          //        b_buzTable=b_buzKind-1;
+ 187          //        b_buzKind=0;
+ 188          //        b_buzCnt=tab_buz[b_buzTable].cnt;     //蜂鸣器响的次数
+ 189          //              b_buzType=tab_buz[b_buzTable].type;//蜂鸣器响声的类别
+ 190          //        b_buzNum=0;
+ 191          //        f_buzOn=0;
+ 192          //        f_buzRun=1;   //0:蜂鸣器播放完成
+ 193          //
+ 194          //              //类别>=3时,关机音时
+ 195          //              if(b_buzType>=3)
+ 196          //              {
+ 197          //                      //初始化占空比
+ 198          //                      b_SP_n=7;       
+ 199          //                      b_buz_SP_cnt=0; //初始化特殊计数
+ 200          //              }
+ 201          //
+ 202          //              #if   c_ad_buz_com
+ 203          //        ADC_PD(1);//关闭ADC模块
+ 204          //        ADC_SCAN_CLR;
+ 205          //        ADC_IE_CLR;
+ 206          //        ADC_IO_SEL1=0;
+ 207          //        ADC_IO_SEL2=0;
+ 208          //        ADC_IO_SEL3=0;
+ 209          //        ADC_IO_SEL4=0;
+ 210          //              #endif
+ 211          //    }
+ 212          //
+ 213          //    if(f_buzRun)
+ 214          //    { 
+ 215          //
+ 216          //              if(b_buzType!=4)
+ 217          //              {
+ 218          //              b_buzNum++;
+ 219          //
+ 220          //                      /*开启的总时间*/
+ 221          //              if(b_buzNum<=tab_buz[b_buzTable].on)
+ 222          //              {
+ 223          //                  f_buzOn=1;
+ 224          //                  p_buz_out;
+ 225          //              }
+ 226          //              else
+ 227          //              {
+ 228          //                  f_buzOn=0;
+ 229          //                  //buz_disEN;
+ 230          //                              //关
+ 231          //                              PWM0C_Set(2000,100);    //(频率,占空比)
+ 232          //
+ 233          //              }
+ 234          //
+ 235          //                      /*总周期*/
+ 236          //              if(b_buzNum==tab_buz[b_buzTable].all)
+ 237          //              {
+ 238          //                  b_buzCnt--;
+ 239          //                  b_buzNum=0;
+ 240          //                  if(b_buzCnt==0)
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 5   
+
+ 241          //                  {
+ 242          //                      f_buzRun=0;     //0:蜂鸣器播放完成
+ 243          //                      f_buzOn=0;
+ 244          //                      //buz_disEN;
+ 245          //                                      //关
+ 246          //                                      PWM0C_Set(2000,100);    //(频率,占空比)
+ 247          //                                      
+ 248          //                  }
+ 249          //                      }
+ 250          //
+ 251          //              }       
+ 252          //              else
+ 253          //              {
+ 254          //                      if(b_buzCnt==8)
+ 255          //                              b_buzTable=0;//(1-1)    //按钮音时间
+ 256          //                      else if(b_buzCnt==7)
+ 257          //                              b_buzTable=2;//(3-1)    //开机音时间
+ 258          //                      else if(b_buzCnt==6)
+ 259          //                              b_buzTable=0;//(1-1)    //按钮音时间
+ 260          //                      else if(b_buzCnt==5)
+ 261          //                              b_buzTable=2;//(3-1)    //开机音时间
+ 262          //                      else if(b_buzCnt==4)
+ 263          //                              b_buzTable=0;//(1-1)    //按钮音时间                                                    
+ 264          //                      else if(b_buzCnt==3)
+ 265          //                              b_buzTable=2;//(3-1)    //开机音时间
+ 266          //                      else if(b_buzCnt==2)
+ 267          //                              b_buzTable=0;//(1-1)    //按钮音时间
+ 268          //                      else if(b_buzCnt==1)
+ 269          //                              b_buzTable=2;//(4-1)    //开机音时间            
+ 270          //                      else
+ 271          //                              b_buzTable=0;//(1-1)    //按钮音时间
+ 272          //
+ 273          //              b_buzNum++;
+ 274          //                      /*开启的总时间*/
+ 275          //              if(b_buzNum<=tab_buz[b_buzTable].on)
+ 276          //              {
+ 277          //                  f_buzOn=1;
+ 278          //                  p_buz_out;
+ 279          //              }
+ 280          //              else
+ 281          //              {
+ 282          //                  f_buzOn=0;
+ 283          //                  //buz_disEN;
+ 284          //                              //关
+ 285          //                              PWM0C_Set(2000,100);    //(频率,占空比)
+ 286          //              }
+ 287          //
+ 288          //                      /*总周期*/
+ 289          //              if(b_buzNum>=tab_buz[b_buzTable].all)
+ 290          //              {
+ 291          //                  b_buzCnt--;
+ 292          //                  b_buzNum=0;
+ 293          //                  if(b_buzCnt==0)
+ 294          //                  {
+ 295          //                      f_buzRun=0;     //0:蜂鸣器播放完成
+ 296          //                      f_buzOn=0;
+ 297          //                      //buz_disEN;
+ 298          //                  }
+ 299          //                              //初始化占空比
+ 300          //                              b_SP_n=7;       
+ 301          //                              b_buz_SP_cnt=0; //初始化特殊计数
+ 302          //
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 6   
+
+ 303          //
+ 304          //                      }               
+ 305          //              }
+ 306          //
+ 307          //    
+ 308          //    }
+ 309          //
+ 310          //
+ 311          //      /*特殊处理*/
+ 312          //      if(f_buzOn)
+ 313          //      {
+ 314          //              if(b_buzType==1)        //按键音
+ 315          //                      PWM0C_Set(2000,(100-7));        //(频率,占空比)
+ 316          //              else if(b_buzType==2)//报警音
+ 317          //                      PWM0C_Set(2000,(100-15));       //(频率,占空比)
+ 318          //              else if(b_buzType==3)//开机音
+ 319          //              {
+ 320          //                      b_buz_SP_cnt++; //特殊计数,形成100ms
+ 321          //                      if(b_buz_SP_cnt>=6)
+ 322          //                      {
+ 323          //                              b_buz_SP_cnt=0;
+ 324          //                              /*100ms进入一次*/
+ 325          //                              if(b_SP_n>0)
+ 326          //                              {
+ 327          //                                      b_SP_n--;
+ 328          //                              }
+ 329          //                                              
+ 330          //                      }
+ 331          //                              if(b_SP_n>0)
+ 332          //                              {
+ 333          //                                      PWM0C_Set(2000,(100-b_SP_n));   //(频率,占空比)
+ 334          //                              }
+ 335          //                              else
+ 336          //                              {
+ 337          //                                      PWM0C_Set(2000,100);    //(频率,占空比)
+ 338          //                              }
+ 339          //              }
+ 340          //              else if(b_buzType==4)//工作音
+ 341          //              {
+ 342          //                      //3-1 开机音
+ 343          //                      //1-1 按钮音
+ 344          //                      if(b_buzTable==0)
+ 345          //                      {
+ 346          //                              //按钮音时间
+ 347          //                              PWM0C_Set(2000,(100-7));        //(频率,占空比) 
+ 348          //                      }
+ 349          //                      else if(b_buzTable==2)
+ 350          //                      {
+ 351          //                              b_buz_SP_cnt++; //特殊计数,形成100ms
+ 352          //                              if(b_buz_SP_cnt>=5)
+ 353          //                              {
+ 354          //                                      b_buz_SP_cnt=0;
+ 355          //                                      /*100ms进入一次*/
+ 356          //                                      if(b_SP_n>0)
+ 357          //                                      {
+ 358          //                                              b_SP_n--;
+ 359          //                                      }
+ 360          //                              }
+ 361          //
+ 362          //                              if(b_SP_n>0)
+ 363          //                              {
+ 364          //                                      PWM0C_Set(2000,(100-b_SP_n));   //(频率,占空比)
+C51 COMPILER V9.60.0.0   BUZ                                                               05/09/2023 16:49:07 PAGE 7   
+
+ 365          //                              }
+ 366          //                              else
+ 367          //                              {
+ 368          //                                      PWM0C_Set(2000,100);    //(频率,占空比)
+ 369          //                              }
+ 370          //
+ 371          //                      }
+ 372          //                      
+ 373          //              
+ 374          //              
+ 375          //              
+ 376          //              }
+ 377          //      
+ 378          //      }
+ 379          //      else
+ 380          //      {       
+ 381          //              //关
+ 382          //              PWM0C_Set(2000,100);    //(频率,占空比)
+ 383          //
+ 384          //              //PWM0C_Set(2000,0);    //(频率,占空比)
+ 385          //              b_buz_SP_cnt=0; //特殊计数,形成100ms
+ 386          //                      //初始化占空比
+ 387          //                      b_SP_n=7;
+ 388          //      }
+ 389          //
+ 390          //
+ 391          //
+ 392          //
+ 393          //      
+ 394          //
+ 395          //
+ 396          //
+ 397          //
+ 398          //}
+ 399          
+ 400          
+ 401          
+ 402          
+ 403          
+ 404          
+ 405          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    177    ----
+   CONSTANT SIZE    =     27    ----
+   XDATA SIZE       =      6    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

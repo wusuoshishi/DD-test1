@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "XS16TK06X",
+            "includePath": [
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Inc",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\User",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Application_Library",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Project",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Source",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Lib",
+                "d:\\CoderLife\\XS_FC_DCG01F1_TK06AF1\\Doc"
+            ],
+            "defines": [
+                "__C51__",
+                "__VSCODE_C51__",
+                "reentrant=",
+                "compact=",
+                "small=",
+                "large=",
+                "data=",
+                "idata=",
+                "pdata=",
+                "bdata=",
+                "xdata=",
+                "code=",
+                "bit=char",
+                "sbit=char",
+                "sfr=char",
+                "sfr16=int",
+                "sfr32=int",
+                "interrupt=",
+                "using=",
+                "_at_=",
+                "_priority_=",
+                "_task_="
+            ],
+            "intelliSenseMode": "${default}"
+        }
+    ],
+    "version": 4
+}

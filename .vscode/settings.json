@@ -1,0 +1,12 @@
+{
+	"files.associations": {
+		"global.h": "c",
+		"config.h": "c",
+		"xs16tk06x_adc.h": "c",
+		"xs16tk06x_lvdt.h": "c",
+		"project.h": "c",
+		"intrins.h": "c",
+		"INTRINS.H": "cpp",
+		"other.h": "c"
+	}
+}

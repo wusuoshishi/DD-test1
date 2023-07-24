@@ -1,0 +1,1 @@
+"Application_Library\TM1628.c" OMF2 OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\TM1628.lst) OBJECT(.\Output\TM1628.obj)

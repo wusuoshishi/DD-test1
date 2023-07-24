@@ -1,0 +1,184 @@
+C51 COMPILER V9.54   XS16TK06X_LED                                                         02/25/2022 12:00:39 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE XS16TK06X_LED
+OBJECT MODULE PLACED IN .\Output\XS16TK06X_LED.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Source\XS16TK06X_LED.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Inc;.\User;.\Ap
+                    -plication_Library;.\Project) DEBUG OBJECTEXTEND PRINT(.\List\XS16TK06X_LED.lst) TABS(2) OBJECT(.\Output\XS16TK06X_LED.ob
+                    -j)
+
+line level    source
+
+   1          #include "Config.h"
+   2              
+   3          #if (LED_EN == 1)
+*** WARNING C322 IN LINE 3 OF Source\XS16TK06X_LED.c: unknown identifier
+                #pragma message "±àÒë,LED ´®ÐÐµãÕó¹¦ÄÜ"
+              
+                uchar xdata LED_DIS_DAT[8]={0};
+              
+                #if (LED_MODE == 0) 
+                  ulong xdata LED_Light_H_Tem = 0xFFFFFFFF;
+                  ulong xdata LED_Light_L_Tem = 0xFFFFFFFF;
+                #endif
+                
+              #endif
+  14          
+  15          
+  16          #if (LED_EN == 1)
+*** WARNING C322 IN LINE 16 OF Source\XS16TK06X_LED.c: unknown identifier
+              
+              //-----------------------------------------------------------------//
+              //º¯ÊýÃû³Æ£º void LED_SER_Data(uchar  *arry)
+              //º¯Êý¹¦ÄÜ£º LED´®ÐÐµãÕóÊý¾ÝÏÔÊ¾º¯Êý
+              //ÊäÈë²ÎÊý£º arry ÏÔÊ¾»º´æÊý×é
+              //Êä³ö²ÎÊý£º ÎÞ
+              //·µ »Ø Öµ£º ÎÞ
+              //-----------------------------------------------------------------//
+              void LED_SER_Data(uchar *arry)
+              {
+                uchar   i;
+                for(i=0;i<8;i++)
+                {
+                  XBYTE[0x200+i] = *(arry+i); 
+                } 
+              }
+              
+              //-----------------------------------------------------------------//
+              //º¯ÊýÃû³Æ£º void LED_SER_Light_Set(ulong led_width_h,ulong led_width_l)
+              //º¯Êý¹¦ÄÜ£º LED´®ÐÐµãÕóLEDµ¼Í¨Ê±¼äÑ¡Ôñ
+              //ÊäÈë²ÎÊý£º ulong led_width_h,ulong led_width_l:LEDµ¼Í¨Ê±¼äÑ¡Ôñ,0Îªµ¼Í¨Ê±¼ä1£¬1Îªµ¼Í¨Ê±¼ä2
+              //Êä³ö²ÎÊý£º ÎÞ
+              //·µ »Ø Öµ£º ÎÞ
+              //-----------------------------------------------------------------//
+              void LED_SER_Light_Set(ulong led_width_h,ulong led_width_l)
+              {
+              
+                XBYTE[0x208] = (uchar)(led_width_l>>0);
+                XBYTE[0x209] = (uchar)(led_width_l>>8);
+                XBYTE[0x20A] = (uchar)(led_width_l>>16);
+                XBYTE[0x20B] = (uchar)(led_width_l>>24);
+                XBYTE[0x20C] = (uchar)(led_width_h>>0);
+                XBYTE[0x20D] = (uchar)(led_width_h>>8);
+                XBYTE[0x20E] = (uchar)(led_width_h>>16);
+                XBYTE[0x20F] = (uchar)(led_width_h>>24);
+C51 COMPILER V9.54   XS16TK06X_LED                                                         02/25/2022 12:00:39 PAGE 2   
+
+              
+                // LED_START_SET(1);
+                
+              }
+              
+              //-----------------------------------------------------------------//
+              //º¯ÊýÃû³Æ£º void LED_SER_Light_Set_Int(ulong led_width_h,ulong led_width_l)
+              //º¯Êý¹¦ÄÜ£º LED´®ÐÐµãÕóLEDµ¼Í¨Ê±¼äÑ¡Ôñ
+              //ÊäÈë²ÎÊý£º ulong led_width_h,ulong led_width_l:LEDµ¼Í¨Ê±¼äÑ¡Ôñ,0Îªµ¼Í¨Ê±¼ä1£¬1Îªµ¼Í¨Ê±¼ä2
+              //Êä³ö²ÎÊý£º ÎÞ
+              //·µ »Ø Öµ£º ÎÞ
+              //-----------------------------------------------------------------//
+              #if (LED_MODE == 0)
+              void LED_SER_Light_Set_Int(ulong led_width_h,ulong led_width_l)
+              {
+              
+                XBYTE[0x208] = (uchar)(led_width_l>>0);
+                XBYTE[0x209] = (uchar)(led_width_l>>8);
+                XBYTE[0x20A] = (uchar)(led_width_l>>16);
+                XBYTE[0x20B] = (uchar)(led_width_l>>24);
+                XBYTE[0x20C] = (uchar)(led_width_h>>0);
+                XBYTE[0x20D] = (uchar)(led_width_h>>8);
+                XBYTE[0x20E] = (uchar)(led_width_h>>16);
+                XBYTE[0x20F] = (uchar)(led_width_h>>24);
+                
+              }
+              #endif
+              
+              //-----------------------------------------------------------------//
+              //º¯ÊýÃû³Æ£º void LED_SER_Init(void)
+              //º¯Êý¹¦ÄÜ£º LED´®ÐÐµãÕóÇý¶¯³õÊ¼»¯
+              //ÊäÈë²ÎÊý£º ÎÞ
+              //Êä³ö²ÎÊý£º ÎÞ
+              //·µ »Ø Öµ£º ÎÞ
+              //-----------------------------------------------------------------//
+              //-------------------------------------------------------------------------------------------------------
+              //|    Ãû³Æ         |         ¹«Ê½                          |        ËµÃ÷         |
+              //-------------------------------------------------------------------------------------------------------
+              //|  T_LED(ms)      |    T_LED(ms)  = TX_LED(ms)<=17ms      |   LED×ÜÁÁµÆÊ±¼ä     |
+              //| µ¼Í¨Ê±¼ä1<µ¼Í¨Ê±¼ä2, TX_LED(ms) = T_LED2(ms)          
+              //| µ¼Í¨Ê±¼ä1>µ¼Í¨Ê±¼ä2, TX_LED(ms) = T_LED1(ms)          
+              //-------------------------------------------------------------------------------------------------------
+              //-------------------------------------------------------------------------------------------------------
+              //LED´®ÐÐµãÕó¾ØÕóÑ¡Ôñ(X*Y) 0-ÎÞ¾ØÕó£¬1-4*4£¬2-5*5£¬3-6*6,4-6*7£¬5-7*7£¬6-7*8£¬7-8*8
+              //-------------------------------------------------------------------------------------------------------
+              
+              void LED_SER_Init(void)
+              {
+                EA = 0;//¹Ø×ÜÖÐ¶Ï£»
+                LED_IP_SET;      //ÉèÖÃLEDÖÐ¶ÏÓÅÏÈ¼¶Îª¸ß£¬¸ù¾ÝÊµ¼ÊÓ¦ÔËÉèÖÃÓÅÏÈ¼¶
+                LED_INT_FLAG_CLR; // Çå³ýLEDÖÐ¶Ï±êÖ¾Î»
+                LED_SER_COM_SET(0);//COM´óµçÁ÷Ñ¡Ôñ£¬0Îª²»¿ªÆô£¬1Îª¿ªÆô(¿ªÆôºóLEDÓ²¼þÉ¨ÃèÊ±ÐòÎÞÐ§)
+                LED_SER_MATRIX_SET(4);//LED´®ÐÐµãÕó¾ØÕóÑ¡Ôñ(X*Y) 0-ÎÞ¾ØÕó£¬1-4*4£¬2-5*5£¬3-6*6,4-6*7£¬5-7*7£¬6-7*8£¬7-8*8
+                LED_SER_CURRENT_SET(5);//LEDÇý¶¯ÄÜÁ¦ÅäÖÃ(0~15)£¬²ÎÕÕ¹æ¸ñÊéLEDÇý¶¯µçÁ÷±í
+                LED_SER_LED1_WIDTH_SET(0);//µ¥¸öµÆµ¼Í¨Ê±¼ä1ÅäÖÃ£¬(x+1)*16us
+                LED_SER_LED2_WIDTH_SET(5);//µ¥¸öµÆµ¼Í¨Ê±¼ä2ÅäÖÃ£¬(x+1)*16us
+                LED_SER_SCAN_SET(LED_MODE);//LEDÉ¨ÃèÄ£Ê½Ñ¡Ôñ£¬0ÎªÖÐ¶ÏÄ£Ê½£¬1ÎªÑ­»·Ä£Ê½ 
+                LED_IO_START_SET(0);
+                //LED¿Ú¾ØÕóÆðÊ¼PADÑ¡Ôñ¼Ä´æÆ÷(0~7):ÆðÊ¼¿ÚLED0Ñ¡ÔñPADµÄ¾ßÌåÎ»ÖÃ£¬Ê£ÓàµÄLEDX°´ÕÕ´ÓÉÏµ½ÏÂµÄË³ÐòÅÅÁÐ£¬³¬¹ýPC0Ô
+             -ò´ÓPB0Ñ­»·Ë³ÐòÅÅÁÐ¡£
+                //ÀýÈç£ºLED_IO_START=0111£¬DUTY_SEL=7£¬ÔòLED0: PB7£¬LED1: PC0£¬LED2: PB0£¬LED3: PB1£¬LED4: PB2£¬LED5: PB3
+             -£¬LED6: PB4£¬LED7: PB5£¬LED8: PB6
+C51 COMPILER V9.54   XS16TK06X_LED                                                         02/25/2022 12:00:39 PAGE 3   
+
+              
+                LED_SER_Data(LED_DIS_DAT);////ÊäÈë²ÎÊý£º ulong led_data_h,LED¸ß24Î»Êý¾Ý£¬ulong led_data_l,LEDµÍ32Î»Êý¾Ý,¸
+             -ù¾ÝÓ¦ÓÃ½øÐÐÏÔÊ¾Êý¾Ý³õÊ¼»¯£¬µçÂ·ÉÏÎÞÁ¬½ÓLED¶ÔÓ¦µãÉèÖÃÎª0£»
+                LED_SER_Light_Set(0xFFFFFFFF,0xFFFFFFFF);//ÊäÈë²ÎÊý£º ulong led_width_h,ulong led_width_l:LEDµ¼Í¨Ê±¼äÑ¡Ôñ
+             -,0Îªµ¼Í¨Ê±¼ä1£¬1Îªµ¼Í¨Ê±¼ä2
+                
+                #if (LED_MODE == 0)
+                  LED_IE_SET;       //¿ªLEDÖÐ¶ÏÊ¹
+                #else
+                  LED_IE_CLR;       //¹ØLEDÖÐ¶ÏÊ¹
+                #endif
+                
+                LED_START_SET(1);//LEDÉ¨Ãè¿ªÊ¼Í£Ö¹¿ØÖÆ£¬0ÎªÍ£Ö¹É¨Ãè£¬1Îª¿ªÊ¼É¨Ãè
+              
+                EA = 1;//¿ª×ÜÖÐ¶Ï
+              
+              }
+              
+              
+              
+              //-----------------------------------------------------------------//
+              //º¯ÊýÃû³Æ£º void LED_ISR() interrupt 13 
+              //º¯Êý¹¦ÄÜ£º LEDÖÐ¶Ï·þÎñº¯Êý
+              //ÊäÈë²ÎÊý£º ÎÞ
+              //Êä³ö²ÎÊý£º ÎÞ
+              //·µ »Ø Öµ£º ÎÞ
+              //-----------------------------------------------------------------//
+              #if (LED_MODE == 0)
+              void LED_ISR() interrupt 13
+              {
+                LED_INT_FLAG_CLR;   // Çå³ýLEDÖÐ¶Ï±êÖ¾Î»
+              
+                LED_SER_Light_Set_Int(LED_Light_H_Tem,LED_Light_L_Tem);
+              
+                
+                LED_START_SET(1);  //LEDÉ¨Ãè¿ªÊ¼Í£Ö¹¿ØÖÆ£¬0ÎªÍ£Ö¹É¨Ãè£¬1Îª¿ªÊ¼É¨Ãè
+              }
+              #endif
+              
+              #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

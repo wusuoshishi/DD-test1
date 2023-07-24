@@ -1,0 +1,476 @@
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE XS16TK06X_TIMER
+OBJECT MODULE PLACED IN .\Output\XS16TK06X_Timer.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Source\XS16TK06X_Timer.c OMF2 OPTIMIZE(8,SPEED) BROWSE 
+                    -INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\XS16TK06X_Timer.lst) OBJECT(.\Output\XS16TK06X_T
+                    -imer.obj)
+
+line level    source
+
+   1          #include "Config.h"
+   2          #include        ".\Application_Library\Global.h"
+   3          
+   4          #if Timer0_EN
+   5          uchar TH0_Reload = 0;
+   6          uchar TL0_Reload = 0;
+   7          
+   8          #ifdef SNS_NUM
+   9                  #if SNS_NUM
+  10                  unsigned int    xdata ctk_soft_reset_count = 0;
+  11                  uint xdata ctk_soft_reset_max_count = 30000;
+  12                  #endif
+  13                  void Reset_Cnt_Add(void);
+  14          #endif
+  15          
+  16          #ifdef IICS_EN
+  17                  #if IICS_EN
+                      uint xdata sclen_soft_reset_count = 0;
+                      uint xdata sclen_soft_reset_max_count = 0;
+                      void Set_SCLEN(void);
+                      #endif
+  22          #endif
+  23          
+  24          
+  25          
+  26          
+  27          #endif 
+  28          
+  29          #if Timer1_EN
+  30                  uchar TH1_Reload = 0;
+  31                  uchar TL1_Reload = 0;
+  32          #endif
+  33          
+  34          
+  35          //-----------------------------------------------------------------//
+  36          //º¯ÊýÃû³Æ£º void Timer0_Init(uint Timer0Us)
+  37          //º¯Êý¹¦ÄÜ£º ¶¨Ê±Æ÷0³õÊ¼»¯
+  38          //ÊäÈë²ÎÊý£º uint Timer0Us:¶¨Ê±Timer0Us usÊ±¼ä£¬Timer0UsÈ¡Öµ·¶Î§1~10000 
+  39          //Êä³ö²ÎÊý£º ÎÞ
+  40          //·µ »Ø Öµ£º ÎÞ
+  41          //-----------------------------------------------------------------//
+  42          #if Timer0_EN
+  43          
+  44                  #pragma message "±àÒë£¬void Timer0_Init(uint Timer0Us)º¯Êý"
+*** MESSAGE C286 IN LINE 44 OF Source\XS16TK06X_Timer.c: ±àÒë£¬void Timer0_Init(uint Timer0Us)º¯Ê
+  45                  void Timer0_Init(uint Timer0Us)
+  46                  {
+  47   1                      EA = 0;//¹Ø×ÜÖÐ¶Ï£»
+  48   1              
+  49   1                      T0_IP_CLR;//¸ù¾ÝÊµ¼ÊÓ¦ÔËÉèÖÃÓÅÏÈ¼¶
+  50   1                      T0_INT_FLAG_CLR;//Çå³ýTimer0ÖÐ¶Ï±êÖ¾
+  51   1      
+  52   1                      T0_MODE_SET(1); //Timer0¶¨Ê±Ä£Ê½Ñ¡Ôñ£º0£º13bit¶¨Ê±£¬1£º16bit¶¨Ê±£¬2£º8bitÖØÔØ¶¨Ê±£¬3£ºÁ½¸ö8Î»¶¨Ê±¼Ä´æÆ÷ 
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 2   
+
+             -tiemr0_clk=(1/12)*sys_clk
+  53   1                      
+  54   1                      TH0 = (65536 - ((uint)((Timer0Us*1.0)*((SYS_12M*1.0)/12.0))))>>8;//SYSCLK=12MHz
+  55   1                      TL0 = (65536 - ((uint)((Timer0Us*1.0)*((SYS_12M*1.0)/12.0))));//SYSCLK=12MHz
+  56   1              
+  57   1                      
+  58   1                      TH0_Reload = TH0;
+  59   1                      TL0_Reload = TL0;
+  60   1                      
+  61   1                      #ifdef SNS_NUM
+  62   1                              #if SNS_NUM
+  63   1                                      ctk_soft_reset_max_count = (500000 / Timer0Us);//¼ÆËã¶¨Ê±500msµÄ´ÎÊý
+  64   1                              #endif
+  65   1                      #endif
+  66   1                      
+  67   1                      #ifdef IICS_EN
+  68   1                              #if IICS_EN
+                                              sclen_soft_reset_max_count = (500000 / Timer0Us);//¼ÆËã¶¨Ê±500msµÄ´ÎÊý
+                                      #endif
+  71   1                      #endif
+  72   1                      
+  73   1                      #ifdef IDLE_MODE
+  74   1                              #if IDLE_MODE
+                                              Idle_Time_Count =  (1000 / Timer0Us);//¼ÆËã¶¨Ê±1msµÄ´ÎÊý
+                                      #endif
+  77   1                      #endif
+  78   1                      
+  79   1                      #ifdef ADC_IS_OPEN
+  80   1                              #if ADC_IS_OPEN
+  81   1                                              #if ADC_MODE
+  82   1                                              ADC_Rest_Max_Count = (100000 / Timer0Us);//¼ÆËã¶¨Ê±100msµÄ´ÎÊý
+  83   1                                              #endif
+  84   1                              #endif
+  85   1                      #endif
+  86   1                      
+  87   1                      T0_IE_SET;//Ê¹ÄÜTimer0ÖÐ¶Ï 
+  88   1                      T0_RUN;//¿ªÆôTimer0
+  89   1                      EA = 1;//¿ª×ÜÖÐ¶Ï         
+  90   1              }
+  91          //-----------------------------------------------------------------//
+  92          //º¯ÊýÃû³Æ£º void Timer0_ISR() interrupt 1
+  93          //º¯Êý¹¦ÄÜ£º ¶¨Ê±Æ÷0ÖÐ¶Ï×Óº¯Êý
+  94          //ÊäÈë²ÎÊý£º ÎÞ
+  95          //Êä³ö²ÎÊý£º ÎÞ
+  96          //·µ »Ø Öµ£º ÎÞ
+  97          //-----------------------------------------------------------------//
+  98          void Timer0_ISR() interrupt 1
+  99          {
+ 100   1              TH0 = TH0+TH0_Reload;   
+ 101   1              TL0 = TL0+TL0_Reload;
+ 102   1              T0_INT_FLAG_CLR;//Çå³ýTimer0ÖÐ¶Ï±êÖ¾
+ 103   1      
+ 104   1              #ifdef SNS_NUM
+ 105   1                      #if SNS_NUM
+ 106   1                              Reset_Cnt_Add();
+ 107   1                              if(keys_flag != 0)
+ 108   1                              {
+ 109   2                                      long_key_clear_count++; 
+ 110   2                              }
+ 111   1                              else
+ 112   1                              {
+ 113   2                                      long_key_clear_count = 0;
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 3   
+
+ 114   2                              }
+ 115   1                              
+ 116   1                              #ifdef IDLE_MODE
+ 117   1                                      #if IDLE_MODE
+                                                      if(keys_flag == 0)
+                                                      {
+                                                              
+                                                              if(Idle_Flag == 0)
+                                                              {
+                                                                      Idle_Time_Count1++;
+                                                                      if(Idle_Time_Count1 >= Idle_Time_Count)
+                                                                      {
+                                                                              Idle_Time_Count1 = 0;
+                                                                              Idle_Wait_Count++;
+                                                                              if(Idle_Wait_Count > (Step_In_Idle_Time-50))
+                                                                              {
+                                                                                              parallel_mode = 1;
+                                                                                              
+                                                                              }
+                                                                              if(Idle_Wait_Count > Step_In_Idle_Time)
+                                                                              {
+                                                                                      
+                                                                                      Idle_Wait_Count = 0;
+                                                                                      
+                                                                                      Idle_Flag = 1;
+                                                                                                                                                                                                                                                      
+                                                                              }
+                                                                      }
+                                                              }
+                                                              else
+                                                              {
+                                                                              
+                                                              }
+                                                      }
+                                                      else
+                                                      {
+                                                                      Idle_Flag = 0;
+                                                                      Idle_Time_Count1 = 0;
+                                                                      Idle_Wait_Count = 0;
+                                                      }
+                                              
+                                              #endif
+ 156   1                              #endif
+ 157   1                      #endif
+ 158   1              #endif
+ 159   1                      
+ 160   1              #ifdef IICS_EN
+ 161   1                      #if IICS_EN
+                                      Set_SCLEN();
+                              #endif
+ 164   1              #endif
+ 165   1              
+ 166   1              #ifdef ADC_IS_OPEN
+ 167   1                      #if ADC_IS_OPEN
+ 168   1                              #if ADC_MODE
+ 169   1                                      ADC_Reset_Count();
+ 170   1                              #endif
+ 171   1                      #endif
+ 172   1              #endif
+ 173   1              
+ 174   1              
+ 175   1              
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 4   
+
+ 176   1              #ifdef VolDet_EN
+ 177   1                      #if(VolDet_EN == 1)
+ 178   1                      if(Low_Volotage_Flag == 1)
+ 179   1                      {
+ 180   2                              if(Low_Volotage_Flag_Count < 10000)
+ 181   2                              {
+ 182   3                                      Low_Volotage_Flag_Count++;
+ 183   3                                      if(Low_Volotage_Flag_Count > 10)//¸ù¾ÝÊµ¼ÊÏîÄ¿µ÷ÊÔÈ·ÈÏ´ÎÊý
+ 184   3                                      {
+ 185   4                                              Low_Volotage_Flag = 0;
+ 186   4                                              Low_Volotage_Flag_Count = 0;
+ 187   4                                              Low_Volotage_Flag_Confirm = 1;//VolDet_COUNT*(timer0¶¨Ê±)
+ 188   4                                      }
+ 189   3                              }       
+ 190   2                      }
+ 191   1                      if(Low_Volotage_Flag_Confirm == 1)
+ 192   1                      {
+ 193   2                              Low_Volotage_Flag_Confirm_count++;
+ 194   2                              if(Low_Volotage_Flag_Confirm_count >= 30000)//Èô¶¨Ê±Æ÷¶¨Ê±Îª1ms£¬30000¶ÔÓ¦30s¼ÆÊýÇåÁã£¬Low_Volotage_Fla
+             -g_ConfirmÇå0£¬¸ù¾ÝÊµ¼ÊÏîÄ¿µ÷ÊÔ
+ 195   2                              {
+ 196   3                                      Low_Volotage_Flag_Confirm_count = 0;
+ 197   3                                      Low_Volotage_Flag_Confirm = 0;
+ 198   3                                      low_power = 0;
+ 199   3                              }
+ 200   2                      }
+ 201   1                      #endif
+ 202   1                      
+ 203   1                      #if     (EEPROM_EN&&EEPROM_LVD_WORK)
+                      /*
+                              ÓÐÐ©²úÆ·ÉÏµç±È½ÏÂý£¬ÔÚ¶ÁÍê²Áºó¿ÉÄÜ»á½øÈëµÍµçÑ¹ÖÐ¶ÏµÄ
+                              ½µÑ¹µ¼ÖÂÔÙÐ´Ò»´Î£¬µÈÉýÑ¹Ö®ºóÓÖ²Á£¬ÉèÖÃÑÓÊ±µÈÉÏµçÒ»Ð¡
+                              ¶ÎÊ±¼äºó²ÅÔÊÐí½øÈëµÍµçÑ¹ÖÐ¶ÏÐ´Êý¾Ý
+                      */
+                              if(b_eeprom_layer==2)
+                                      {
+                                              if(++b_eeprom_waitTime>=c_eeprom_eraseWaitTime)
+                                              {
+                                                      b_eeprom_waitTime=0;
+                                                      EA=0;
+                                                      eeprom_erase_deal();
+                                                      EA=1;                           
+                                              }
+                                      }
+                              if(!gf_eeprom_powerStatus)
+                              {
+                                      b_eeprom_waitTime=0;
+                              }
+                              #endif
+ 224   1                      
+ 225   1                      
+ 226   1              #endif
+ 227   1      }
+ 228          #endif
+ 229          
+ 230          //-----------------------------------------------------------------//
+ 231          //º¯ÊýÃû³Æ£º void Timer1_Init(uint Timer1Us)
+ 232          //º¯Êý¹¦ÄÜ£º ¶¨Ê±Æ÷1³õÊ¼»¯
+ 233          //ÊäÈë²ÎÊý£º uint Timer1Us:¶¨Ê±Timer1Us usÊ±¼ä£¬Timer1UsÈ¡Öµ·¶Î§1~10000 
+ 234          //Êä³ö²ÎÊý£º ÎÞ
+ 235          //·µ »Ø Öµ£º ÎÞ
+ 236          //-----------------------------------------------------------------//
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 5   
+
+ 237          #if ((Timer1_EN == 1))
+ 238          #pragma message "±àÒë£¬void Timer1_Init(uint Timer1Us)º¯Êý"
+*** MESSAGE C286 IN LINE 238 OF Source\XS16TK06X_Timer.c: ±àÒë£¬void Timer1_Init(uint Timer1Us)º¯Ê
+ 239          void Timer1_Init(uint Timer1Us)
+ 240          {
+ 241   1              EA = 0;//¹Ø×ÜÖÐ¶Ï£»
+ 242   1              T1_IP_SET;//¸ù¾ÝÊµ¼ÊÓ¦ÓÃÉèÖÃÓÅÏÈ¼¶
+ 243   1              T1_INT_FLAG_CLR;//Çå³ýTimer1ÖÐ¶Ï±êÖ¾
+ 244   1              
+ 245   1              T1_MODE_SET(2); //ÉèÖÃÎª8Î»¼ÆËãÆ÷£¬tiemr1_clk=(1/12)*sys_clk
+ 246   1              
+ 247   1              TH1 = 256 -(Timer1Us>>SYSCLK_SEL);   
+ 248   1              TL1 = 256 -(Timer1Us>>SYSCLK_SEL);
+ 249   1              
+ 250   1      
+ 251   1              T1_IE_SET;//¿ªTimer1ÖÐ¶ÏÊ¹ÄÜ 
+ 252   1              T1_RUN;//¿ªÆôTimer1
+ 253   1              EA = 1;//¿ª×ÜÖÐ¶Ï         
+ 254   1      }
+ 255          //-----------------------------------------------------------------//
+ 256          //º¯ÊýÃû³Æ£º void Timer1_ISR() interrupt 3
+ 257          //º¯Êý¹¦ÄÜ£º ¶¨Ê±Æ÷1ÖÐ¶Ï×Óº¯Êý
+ 258          //ÊäÈë²ÎÊý£º ÎÞ
+ 259          //Êä³ö²ÎÊý£º ÎÞ
+ 260          //·µ »Ø Öµ£º ÎÞ
+ 261          //-----------------------------------------------------------------//
+ 262          void Timer1_ISR() interrupt 3
+ 263          {       
+ 264   1              T1_INT_FLAG_CLR;//Çå³ýTimer1ÖÐ¶Ï±êÖ¾
+ 265   1              if(++gb_1ms>=c_time_1ms)        
+ 266   1              {       
+ 267   2                      gb_1ms=0;       
+ 268   2                      gb_20ms++;      
+ 269   2              }
+ 270   1              
+ 271   1              #if   buz_en
+ 272   1              buz_ring();
+ 273   1              #endif
+ 274   1      
+ 275   1      
+ 276   1              led_scan();
+ 277   1      
+ 278   1              #if   kkg_en
+ 279   1                      if(gf_check)
+ 280   1                      {
+ 281   2                      kkg_work_api();
+ 282   2                      }
+ 283   1              #endif
+ 284   1      
+ 285   1      #if     c_codingSwitch_en       //Ðý×ª±àÂë¿ª¹Ø
+                      codingSwitch_distinguish(1);
+                      codingSwitch_distinguish2(1);
+              #endif
+ 289   1                              
+ 290   1      } 
+ 291          
+ 292          #endif
+ 293          
+ 294          
+ 295          
+ 296          //-----------------------------------------------------------------//
+ 297          //º¯ÊýÃû³Æ£º void Timer2_Init(unsigned int Timer2Ms)
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 6   
+
+ 298          //º¯Êý¹¦ÄÜ£º ¶¨Ê±Æ÷2³õÊ¼»¯
+ 299          //ÊäÈë²ÎÊý£º unsigned int Timer2Ms:¶¨Ê±Timer2Ms msÊ±¼ä£¬Timer2MsÈ¡Öµ·¶Î§1~1999@32.768KHz,1~16@4MHz
+ 300          //Êä³ö²ÎÊý£º ÎÞ
+ 301          //·µ »Ø Öµ£º ÎÞ
+ 302          //-----------------------------------------------------------------//
+ 303          #if Timer2_EN
+              
+                      #pragma message "±àÒë£¬void Timer2_Init(uint Timer2Ms)º¯Êý"
+                      void Timer2_Init(unsigned int Timer2Ms)
+                      {
+                              unsigned int data dat;
+                                              
+                              EA = 0;//¹Ø×ÜÖÐ¶Ï£»
+                              
+                              T2_IP_SET;//¸ù¾ÝÊµ¼ÊÓ¦ÓÃÉèÖÃÓÅÏÈ¼¶
+                              T2_INT_FLAG_CLR;//Çå³ýTimer2ÖÐ¶Ï±êÖ¾
+                              T2_STOP;//bit0Îª0Ê±Í£Ö¹¼ÆÊ±£¬bit0Îª1Ê±¿ªÆô¼ÆÊ±
+                              #if (TIMER2_CLK_SEL == 2)//XTAL 4MHz
+                                      dat = (Timer2Ms * 4000)-1;
+                              #else//0ÎªÄÚ²¿LIRC32K/XTAL 32768Hz
+                                      dat = (Timer2Ms * 32.768)-1;//ÄÚ²¿LIRC32K
+                              #endif
+                              
+                              TIMER2_SET_H = dat/256;
+                              TIMER2_SET_L = dat%256;
+                              
+                              T2_MODE_SET(1);//bit1Îª0Ê±ÊÖ¶¯ÖØÔØÄ£Ê½£¬bit[1] Îª1Ê±×Ô¶¯ÖØÔØÄ£Ê½        
+              
+                              
+                              #if (TIMER2_CLK_SEL == 0)//0ÎªÄÚ²¿LIRC32K
+                                      T2_XTAL_SET(1);//Timer2 Íâ²¿¾§Õñ¿ª¹Ø,1Îª¹Ø£¬0Îª¿ª
+                                      T2_CLK_SET(0);//Timer2¶¨Ê±Ê±ÖÓÑ¡Ôñ£º0£ºÄÚ²¿LIRC32K£¬1£ºÍâ²¿¾§Õñ
+                              #else//Íâ²¿¾§Õñ32768Hz/4MHz
+                                      TRISD |= 0x0C;
+                                      T2_XTAL_SET(0);//Timer2 Íâ²¿¾§ÕñÄ£¿é¿ª¹Ø,1Îª¹Ø£¬0Îª¿ª   
+                                      T2_CLK_SET(1);//Timer2¶¨Ê±Ê±ÖÓÑ¡Ôñ£º0£ºÄÚ²¿LIRC32K£¬1£ºÍâ²¿¾§Õñ
+                                      #if (TIMER2_CLK_SEL == 1)
+                                              XTAL_CLK_SEL(0);//Íâ²¿¾§ÕñÑ¡Ôñ£º 1£ºÍâ²¿¾§Õñ4MHz£¬0£ºÍâ²¿¾§Õñ32768Hz
+                                      #elif (TIMER2_CLK_SEL == 2)
+                                              XTAL_CLK_SEL(1);//Íâ²¿¾§ÕñÑ¡Ôñ£º 1£ºÍâ²¿¾§Õñ4MHz£¬0£ºÍâ²¿¾§Õñ32768Hz
+                                      #else
+                                      
+                                      #endif
+              
+                              #endif
+                              
+                              T2_IE_SET;//¿ªÆôTimer2ÖÐ¶ÏÊ¹ÄÜ
+                              T2_RUN;//¿ªÆôTimer2
+                              EA = 1;//¿ª×ÜÖÐ¶Ï       
+                      
+                      }
+              #endif
+ 350          //-----------------------------------------------------------------//
+ 351          //º¯ÊýÃû³Æ£º void Timer2_WDT_ISR() interrupt 14
+ 352          //º¯Êý¹¦ÄÜ£º Timer2_WDT_ISRÖÐ¶Ï×Óº¯Êý
+ 353          //ÊäÈë²ÎÊý£º ÎÞ
+ 354          //Êä³ö²ÎÊý£º ÎÞ
+ 355          //·µ »Ø Öµ£º ÎÞ
+ 356          //-----------------------------------------------------------------//
+ 357          void Timer2_WDT_ISR() interrupt 14
+ 358          {
+ 359   1              if(INT_PE_STAT & 0x02)
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 7   
+
+ 360   1              {
+ 361   2                              INT_PE_STAT &= ~0x02;IRCON1 &= ~0x80;//Çå³ý¿´ÃÅ¹·ÖÐ¶Ï±êÖ¾       
+ 362   2                              
+ 363   2              }
+ 364   1              if(INT_PE_STAT & 0x01)
+ 365   1              {
+ 366   2                              
+ 367   2                              T2_INT_FLAG_CLR;//Çå³ýTimer2ÖÐ¶Ï±êÖ¾Î»
+ 368   2                              
+ 369   2              }
+ 370   1      
+ 371   1      }
+ 372          
+ 373          
+ 374          //-----------------------------------------------------------------//
+ 375          //º¯ÊýÃû³Æ£º void Reset_Cnt_Add()
+ 376          //º¯Êý¹¦ÄÜ£º CTK/IIC/Íâ²¿ÖÐ¶Ï³ö´í¼ÆÊýÆ÷ÀÛ¼Óº¯Êý
+ 377          //ÊäÈë²ÎÊý£º ÎÞ
+ 378          //Êä³ö²ÎÊý£º ÎÞ
+ 379          //·µ »Ø Öµ£º ÎÞ
+ 380          //-----------------------------------------------------------------//
+ 381                  #if Timer0_EN
+ 382                  #ifdef SNS_NUM
+ 383                          #if SNS_NUM
+ 384                          void Reset_Cnt_Add()
+ 385                          {
+ 386   1                                      ctk_soft_reset_count++;
+ 387   1                      
+ 388   1                                      if(ctk_soft_reset_count >= ctk_soft_reset_max_count)
+ 389   1                                      {
+ 390   2                                              ctk_soft_reset_count = 0;
+ 391   2                                              SOFT_RST = 0x55;
+ 392   2                                      }
+ 393   1                      }
+ 394                          #endif
+ 395                  #endif
+ 396                  #endif
+ 397          
+ 398          //-----------------------------------------------------------------//
+ 399          //º¯ÊýÃû³Æ£º void Set_SCLEN(void)
+ 400          //º¯Êý¹¦ÄÜ£º ¼ÆÊýÅÐ¶Ï»Ö¸´SCLEN£¬¶¨Ê±Æ÷0¿ªÆôÓÐÐ§£¬½¨Òé¶¨Ê±Ê±¼äÉèÖÃÎª1Ms
+ 401          //ÊäÈë²ÎÊý£º ÎÞ
+ 402          //Êä³ö²ÎÊý£º ÎÞ
+ 403          //·µ »Ø Öµ£º ÎÞ
+ 404          //-----------------------------------------------------------------//
+ 405          #if Timer0_EN
+ 406          #ifdef IICS_EN
+ 407                  #if IICS_EN
+                      void Set_SCLEN(void)
+                      {
+              
+                                      if(SCLEN == 0)
+                                      {
+                                              sclen_soft_reset_count++;//SCLENÎ´ÊÍ·Å¼ÆÊý
+                                              if(sclen_soft_reset_count >= sclen_soft_reset_max_count)
+                                              {
+                                                      SCLEN_SET;
+                                                      sclen_soft_reset_count = 0;                                                     
+                                              }                                       
+                                      }
+                                      else
+                                      {
+C51 COMPILER V9.60.0.0   XS16TK06X_TIMER                                                   05/09/2023 16:49:05 PAGE 8   
+
+                                              sclen_soft_reset_count = 0;     
+                                      }
+                                      
+                      }
+                      #endif
+ 427          #endif
+ 428          #endif
+ 429          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    553    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

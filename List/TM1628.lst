@@ -1,0 +1,187 @@
+C51 COMPILER V9.60.0.0   TM1628                                                            05/09/2023 16:49:07 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TM1628
+OBJECT MODULE PLACED IN .\Output\TM1628.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Application_Library\TM1628.c OMF2 OPTIMIZE(8,SPEED) BRO
+                    -WSE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\TM1628.lst) OBJECT(.\Output\TM1628.obj)
+
+line level    source
+
+   1                  #include        "..\Application_Library\Global.h"
+   2          
+   3          #if     (c_TM1628_EN|| c_TM1629_EN)
+              
+                      void    delayus_1628();
+                      void    sendData(unsigned char dat);
+                      void    TM1628_initSet();
+                      void    TM1628_disON(unsigned char i);
+                      void    TM1628_sendAddrData(unsigned char addr,unsigned char dat);
+                      unsigned char   xdata   gb_disIcData[c_1628_dataNum];
+              
+              
+              /*-----------------------------------------------------------------
+              函数名称： void TM1628_send14Data(void)
+              函数功能： 将显示数据送到1628内显示出来
+              输入参数： 无
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+                      void    TM1628_sendData()
+                      {
+                              unsigned char   i;
+              
+                              TM1628_initSet();
+              
+                              for(i=0;i<c_1628_dataNum;i++)
+                              {
+                                      sendData(gb_disIcData[i]);
+                              }
+              
+                              TM1628_disON(c_1628_lightGrade);        
+                      }
+              
+              
+              
+              /*-----------------------------------------------------------------
+              函数名称： void TM1628_initSet(void)
+              函数功能： 配置1628的使用参数
+              输入参数： 无
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+                      void    TM1628_initSet()
+                      {
+                              p_1628stb_h;
+                              sendData(c_1628_lightMode);
+              
+                              p_1628stb_h;
+                              sendData(c_1628_dataWrite);
+              
+                              p_1628stb_h;
+                              sendData(c_1628_initAddr);
+              
+                      }
+              
+              
+C51 COMPILER V9.60.0.0   TM1628                                                            05/09/2023 16:49:07 PAGE 2   
+
+              /*-----------------------------------------------------------------
+              函数名称： void TM1628_disON(unsigned char i)
+              函数功能： 开1628显示并且配置亮度
+              输入参数： 亮度值
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+                      void    TM1628_disON(unsigned char i)
+                      {
+                              p_1628stb_h;
+                              sendData(i);
+                              p_1628stb_h;
+                      }
+              
+              
+              /*-----------------------------------------------------------------
+              函数名称： void TM1628_sendAddrData(unsigned char       addr,unsigned char      dat)
+              函数功能： 往1628的特定地址送数据
+              输入参数： 地址值和数据
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+              /*
+                      void    TM1628_sendAddrData(unsigned char       addr,unsigned char      dat)
+                      {
+                              p_1628stb_h;
+                              sendData(addr);
+                              delayus_1628();
+                              sendData(dat);
+                      }
+              */      
+              
+              
+              /*-----------------------------------------------------------------
+              函数名称： void sendData(unsigned char dat)
+              函数功能： 将8位数据送入1628
+              输入参数： 送入1628的8位数据
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+                      void    sendData(unsigned char dat)
+                      {
+                              unsigned char   i;
+                              p_1628clk_l;
+                              delayus_1628();
+                              p_1628stb_l;
+              
+                              for(i=0x01;i!=0;i<<=1)
+                              {
+                                      delayus_1628();
+                                      if(dat&i)
+                                      {
+                                              p_1628dio_h;
+                                      }
+                                      else
+                                      {
+                                              p_1628dio_l;
+                                      }
+                                      p_1628clk_h;
+                                      delayus_1628();
+                                      p_1628clk_l;
+              
+                              }
+                      }
+              
+C51 COMPILER V9.60.0.0   TM1628                                                            05/09/2023 16:49:07 PAGE 3   
+
+              
+              /*-----------------------------------------------------------------
+              函数名称： void delayus_1628(void)
+              函数功能： 延时
+              输入参数： 延时时间
+              返 回 值： 无
+              -----------------------------------------------------------------*/
+                      void    delayus_1628()
+                      {
+                              unsigned char   t=12;
+                              
+                              while(t>0)
+                              {
+                                      t--;
+                              }
+                      }
+                      
+              
+              #endif
+ 136          
+ 137          
+ 138          
+ 139          
+ 140          
+ 141          
+ 142          
+ 143          
+ 144          
+ 145          
+ 146          
+ 147          
+ 148          
+ 149          
+ 150          
+ 151          
+ 152          
+ 153          
+ 154          
+ 155          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

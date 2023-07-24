@@ -1,0 +1,331 @@
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE XS16TK06X_ADC
+OBJECT MODULE PLACED IN .\Output\XS16TK06X_ADC.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Source\XS16TK06X_ADC.c OMF2 OPTIMIZE(8,SPEED) BROWSE IN
+                    -CDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\XS16TK06X_ADC.lst) OBJECT(.\Output\XS16TK06X_ADC.o
+                    -bj)
+
+line level    source
+
+   1          #include "Config.h"
+   2          #ifdef ADC_IS_OPEN              
+   3          #if ADC_IS_OPEN
+   4          
+   5                  #if (ADC_MODE == 1)//ADC²éÑ¯Ä£Ê½
+   6          
+   7                          bit ADC_Start_Flag = 0;
+   8                          uint  ADC_Rest_Max_Count = 0;
+   9                          uint  ADC_Start_Count = 0;      
+  10                          
+  11                          #if     (ADC_IN==OPEN)
+                                      uint Adc26 = 0;
+                                      uint Adc26_count = 0;
+                                      ulong Adc26_AVG = 0;
+              
+                                      uint Adc_ch = 0;
+                                      uint Adc_ch_count = 0;
+                                      ulong Adc_ch_AVG = 0;
+                                      uint vol = 0;
+                              #endif
+  21                          
+  22                          //-----------------------------------------------------------------//
+  23                          //º¯ÊýÃû³Æ£º void ADC_Delay_us(unsigned int us)
+  24                          //º¯Êý¹¦ÄÜ£º ÑÓÊ±º¯Êý
+  25                          //ÊäÈë²ÎÊý£º uint us£º1--2.38us@12MHz;10-11.8us@12MHz;100-106us@12MHz;1000-1.045ms*2
+  26                          //Êä³ö²ÎÊý£º ÎÞ
+  27                          //·µ »Ø Öµ£º ÎÞ
+  28                          //-----------------------------------------------------------------//
+  29                          void ADC_Delay_us(unsigned int us)
+  30                          {
+  31   1                              for (; us > 0; us--)
+  32   1                              {       
+  33   2                                      WDT_CTRL = 0x07;
+  34   2                              }               
+  35   1                      }
+  36                          
+  37                          //-----------------------------------------------------------------//
+  38                          //º¯ÊýÃû³Æ£º void ADC_Reset_Count()
+  39                          //º¯Êý¹¦ÄÜ£º ADC³¬Ê±¼ÆÊýÆ÷ÀÛ¼Óº¯Êý
+  40                          //ÊäÈë²ÎÊý£º ÎÞ
+  41                          //Êä³ö²ÎÊý£º ÎÞ
+  42                          //·µ »Ø Öµ£º ÎÞ
+  43                          //-----------------------------------------------------------------//
+  44                          #ifdef Timer0_EN
+  45                                  #if Timer0_EN
+  46                                          #if ADC_IS_OPEN
+  47                                                  #if ADC_MODE
+  48                                                  void ADC_Reset_Count(void)
+  49                                                  {
+  50   1                                                      if(ADC_Start_Flag == 1)
+  51   1                                                      {
+  52   2                                                              ADC_Start_Count++;
+  53   2                                                              if(ADC_Start_Count >= ADC_Rest_Max_Count)
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 2   
+
+  54   2                                                              {
+  55   3                                                                      SOFT_RST = 0x55;        
+  56   3                                                                      ADC_Start_Count = 0;
+  57   3                                                                      ADC_Start_Flag = 0;
+  58   3                                                              }
+  59   2                                                      }
+  60   1                                              }
+  61                                                  #endif
+  62                                          #endif
+  63                                  #endif
+  64                          #endif          
+  65                                          
+  66                  #endif
+  67          #endif
+  68                  
+  69          
+  70                  #if ADC_IS_OPEN
+  71                  //-----------------------------------------------------------------//
+  72                  //º¯ÊýÃû³Æ£º uint Get_ADC(uchar adc_ch)
+  73                  //º¯Êý¹¦ÄÜ£º ²éÑ¯Ä£Ê½ÏÂ»ñÈ¡ADC adc_chµÄÊý¾Ý£»
+  74                  //ÊäÈë²ÎÊý£º uchar adc_ch:ADCÍ¨µÀ
+  75                  //Êä³ö²ÎÊý£º uint£º·µ»ØADCÊý¾Ý
+  76                  //·µ »Ø Öµ£º ÎÞ
+  77                  //-----------------------------------------------------------------// 
+  78                  #if (ADC_MODE == 1)             
+  79                  // uint Get_ADC(uchar adc_ch)
+  80                  // {
+  81                  //      ADC_IE_CLR;//¹Ø±ÕADCÖÐ¶ÏÊ¹ÄÜ
+  82                  
+  83                  //      ADC_IO_CGF((((ulong)(0x01))<< adc_ch));
+  84                  
+  85                  //      if(OPENADC & (((ulong)(0x01))<< (adc_ch)))
+  86                  //      {
+  87                  //              ADC_ADDR_SET(adc_ch);
+  88                  //      }
+  89                  //      else
+  90                  //      {
+  91                  //              return 0;
+  92                  //      }
+  93                          
+  94                  //      ADC_PD(0);//¿ªÆôADCÄ£¿é
+  95                  //      ADC_Delay_us(20);
+  96                  //      ADC_SCAN_EN;//¿ªÆôADCÉ¨Ãè
+  97                          
+  98                  //      ADC_Start_Flag = 1;
+  99                  //      while(!(IRCON1&0x10));
+ 100                  //      ADC_Start_Count = 0;
+ 101                  //      ADC_Start_Flag = 0;
+ 102                          
+ 103                  //      ADC_INT_FLAG_CLR;
+ 104                  //      ADC_PD(1);//¹Ø±ÕADCÄ£¿é
+ 105                          
+ 106                  //      return ((uint)(ADC_RDATAH&0x0F) << 8) | (uint)ADC_RDATAL;
+ 107                  // }
+ 108          
+ 109                  uchar Get_ADC(uchar adc_ch)
+ 110                  {
+ 111   1                      ADC_IE_CLR;//¹Ø±ÕADCÖÐ¶ÏÊ¹ÄÜ
+ 112   1                      
+ 113   1                      ADC_IO_CGF((((ulong)(0x01))<< adc_ch));
+ 114   1              
+ 115   1                      if(OPENADC & (((ulong)(0x01))<< (adc_ch)))
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 3   
+
+ 116   1                      {
+ 117   2                              ADC_ADDR_SET(adc_ch);
+ 118   2                      }
+ 119   1                      else
+ 120   1                      {
+ 121   2                              return 0;
+ 122   2                      }
+ 123   1                      
+ 124   1                      ADC_PD(0);//¿ªÆôADCÄ£¿é
+ 125   1                      ADC_Delay_us(20);
+ 126   1                      ADC_SCAN_EN;//¿ªÆôADCÉ¨Ãè
+ 127   1                      
+ 128   1                      ADC_Start_Flag = 1;
+ 129   1                      while(!(IRCON1&0x10));
+ 130   1                      ADC_Start_Count = 0;
+ 131   1                      ADC_Start_Flag = 0;
+ 132   1                      
+ 133   1                      ADC_INT_FLAG_CLR;
+ 134   1                      ADC_PD(1);//¹Ø±ÕADCÄ£¿é
+ 135   1                      
+ 136   1                      return ((ADC_RDATAH<<4)|(ADC_RDATAL>>4));
+ 137   1              }
+ 138          
+ 139                  #endif  
+ 140                  //-----------------------------------------------------------------//
+ 141                  //º¯ÊýÃû³Æ£º void ADC_Init(void)
+ 142                  //º¯Êý¹¦ÄÜ£º ADC³õÊ¼»¯,ÔÚSetAccessIndexes()Ö®ºó³õÊ¼»¯;
+ 143                  //ÊäÈë²ÎÊý£º ÎÞ
+ 144                  //Êä³ö²ÎÊý£º ÎÞ
+ 145                  //·µ »Ø Öµ£º ÎÞ
+ 146                  //-----------------------------------------------------------------//        
+ 147                  void ADC_Init(void)
+ 148                  {
+ 149   1                      #if (ADC_MODE == 0)
+                              uchar i = 0;
+                              uchar j = 0;
+                              #endif
+ 153   1                      
+ 154   1                      EA = 0;//¹Ø×ÜÖÐ¶Ï£»
+ 155   1                      ADC_IP_SET;//ÉèÖÃADCÖÐ¶ÏÓÅ¼¶Îª¸ß£¬¸ù¾ÝÊµ¼ÊÓ¦ÔËÉèÖÃÓÅÏÈ¼¶
+ 156   1                      ADC_INT_FLAG_CLR;//Çå³ýADCÖÐ¶Ï±êÖ¾Î»
+ 157   1                      ADC_IO_CGF(OPENADC);//ADCÓëIO¹¦ÄÜÑ¡Ôñ£¬¶ÔÓ¦µÄÎ»Îª1ÎªADC¹¦ÄÜ£¬0ÎªIO¹¦ÄÜ
+ 158   1              
+ 159   1                      ADC_SAMP_SET(ADC_SAMPT);//ADC²ÉÑùÊ±¼äÉèÖÃbit[7:0],(0~255)²ÉÑùÊ±¼äÎª(ADC_SPT+1)*4*ADC_CLK
+ 160   1                      ADC_WNUM_SET(ADC_WNUM);//²ÉÑùÍê±Ï¾àÀë×ª»»Ê±¼äÑ¡Ôñ2~31(x+3)*ADC_CLK
+ 161   1                      ADC_SAMPBG_SET(ADC_SAMBG);//²ÉÑùÊ±ÐòÓë±È½ÏÊ±Ðò¼ä¸ôÑ¡Ôñ£¬0Îª¼ä¸ô0£¬1Îª¼ä¸ô1(ADC_CLK)
+ 162   1                      ADC_SAMPDEL_SET(ADC_SAMDEL);//²ÉÑùÑÓÊ±Ñ¡Ôñ£¬0Îª¼ä¸ô0(ADC_CLK)£¬1Îª2(ADC_CLK)£¬2Îª4(ADC_CLK)£¬3Îª8(ADC_CL
+             -K)
+ 163   1                      ADC_FILTER_SET(ADC_FILTER);//ÊäÈëÐÅºÅÂË²¨Ñ¡Ôñ£¬0Îª²»¼ÓRCÂË²¨£¬1Îª¼ÓRCÂË²¨
+ 164   1                      ADC26_VIN_SET(ADC26_VIN);//ADC26ÄÚ²¿ÊäÈëµçÑ¹Ñ¡Ôñ£¬0:Îª1.362V,1Îª2.253V£¬2Îª3.111V,3Îª4.082V
+ 165   1                      ADC_I_SET(ADC_OFFSETI);//ADCÆ«ÖÃµçÁ÷´óÐ¡Ñ¡Ôñ£¬ADC_OFFSETI[0]±È½ÏÆ÷Æ«ÖÃµçÁ÷´óÐ¡:0Îª1uA£¬1Îª2uA£»ADC_OFFSE
+             -TI[1]ÔË·ÅÆ«ÖÃµçÁ÷´óÐ¡:0Îª1uA£¬1Îª2uA£»
+ 166   1                      ADC_CTRL_SET(ADC_CTRL);//ADC±È½ÏÆ÷Ê§µ÷Ïû³ýÑ¡Ôñ£¬ADC±È½ÏÆ÷Ê§µ÷Ïû³ýÑ¡Ôñ£¬0ÎªÏÈ²ÉÑùÔÙÊ§µ÷Ïû³ý£¬1ÎªËùÓÐ¿ª¹ØÒ
+             -»Æð¶Ï¿ª,Ä¬ÈÏÎª1
+ 167   1                      
+ 168   1                      ADC_DCLK_SET(ADC_DCLK);//ADC·ÖÆµÑ¡Ôñ£¬bit[1:0],(0~3)-(3MHz,2MhHz,1.5MHz,1MHz)
+ 169   1                      ADC_VREF_SET(ADC_VREF);//²Î¿¼Ô´µçÑ¹Ñ¡Ôñ£º0£ºVCC;1:ADC_VREF
+ 170   1                      ADC_VREF_VOL_SEL(ADC_VREF_VOL);//²Î¿¼µçÑ¹Ñ¡ÔñADC_VREF£º0£º2V;1:4V
+ 171   1      
+ 172   1      
+ 173   1                      #if (ADC_MODE == 1)
+ 174   1                              ADC_SCAN_CLR;//¹Ø±ÕADCÉ¨Ãè
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 4   
+
+ 175   1                              ADC_IE_CLR;//¹Ø±ÕADCÖÐ¶ÏÊ¹ÄÜ
+ 176   1                      #endif
+ 177   1                      
+ 178   1                      EA = 1;//¿ª×ÜÖÐ¶Ï
+ 179   1                       
+ 180   1              }
+ 181                  
+ 182          
+ 183          //-----------------------------------------------------------------//
+ 184          //º¯ÊýÃû³Æ£º uint Get_VOL(uchar adc_ch_num)
+ 185          //º¯Êý¹¦ÄÜ£º ¶ÁÈ¡ÄÚ²¿ADC_IN(ADC26)µÄµçÑ¹Ð£×¼Öµ£¬¼ÆËãADCÊäÈëµçÑ¹
+ 186          //ÊäÈë²ÎÊý£º uchar adc_ch_num:ADCÍ¨µÀ
+ 187          //Êä³ö²ÎÊý£º uint£º·µ»ØADCÊäÈëµçÑ¹mV
+ 188          //·µ »Ø Öµ£º ÎÞ
+ 189          //»ñÈ¡ËùÑ¡ÔñÍ¨µÀµÄµçÑ¹£¬¶Á26Í¨µÀ»ñÈ¡Ò»¸öµ½ÕæÕýµÄµçÔ´µçÑ¹£¬ÔÙ¸ù¾Ý
+ 190          //´Ë¼ÆËã³öÍ¨µÀµÄµçÑ¹²ÅÊÇ×¼È·µÄ(VCC¿ÉÄÜ²»ÊÇ5V)
+ 191          //¼ÙÉèµçÔ´µçÑ¹ÎªV5,26Í¨µÀ¶ÁÈ¡adÎªad26£¬²âÁ¿ÊäÈëµçÑ¹ad¶ÁÈ¡adÎªadin
+ 192          //26Í¨µÀ»ù×¼µçÑ¹ÎªVb£¬²âÁ¿Í¨µÀµçÑ¹ÎªVin£¬
+ 193          //1:Í¨¹ý26Í¨µÀ¼ÆËã³öV5=Vb*255/ad26
+ 194          //2:Í¨¹ýÊäÈëµçÑ¹adÔòVin=V5*adin/255
+ 195          //3:½«1µÄV5´úÈë2ÖÐÔòVin=Vb*adin/ad26
+ 196          //-----------------------------------------------------------------// 
+ 197          #if     (ADC_IN==OPEN)
+              uint Get_VOL(uchar adc_ch_num)
+              {
+                      
+                      ulong tem = 0;
+                      uint vol_adc26 = 0;
+              
+                      Adc26 = ADC_Obtain(26);
+                      Adc_ch = ADC_Obtain(adc_ch_num);
+                      Adc26_AVG += Adc26;
+                      Adc_ch_AVG += Adc_ch;
+                      Adc26_count++;
+              
+                      if(Adc26_count >= GET_VOL_AVG_NUM)
+                      {
+                              Adc26_count = 0;
+                              Adc26_AVG /= GET_VOL_AVG_NUM;
+                              Adc_ch_AVG /= GET_VOL_AVG_NUM;
+                              tem = (ulong)Adc_ch_AVG*10000;
+                      #if     (ADC26_VIN==0)  
+                              vol_adc26 = (((uint)CBYTE[0x4040]) << 8) + CBYTE[0x4041];       //1.362v
+                      #elif (ADC26_VIN==1)
+                              vol_adc26 = (((uint)CBYTE[0x4042]) << 8) + CBYTE[0x4043];       //2.253v
+                      #elif (ADC26_VIN==2)
+                              vol_adc26 = (((uint)CBYTE[0x4044]) << 8) + CBYTE[0x4045];       //3.111v
+                      #elif (ADC26_VIN==3)
+                              vol_adc26 = (((uint)CBYTE[0x4046]) << 8) + CBYTE[0x4047];       //4.082v
+                      #else
+                              vol_adc26 = (((uint)CBYTE[0x4040]) << 8) + CBYTE[0x4041];
+                      #endif  
+                              vol = ((tem/Adc26_AVG))*vol_adc26/10000;
+                              
+                              Adc_ch_AVG = 0;
+                              Adc26_AVG = 0;
+                      }
+                      return vol;
+              }
+              #endif
+ 235          
+ 236          
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 5   
+
+ 237          //-----------------------------------------------------------------//
+ 238          //º¯ÊýÃû³Æ£º uchar ADC_Obtain(uchar adc_ch)
+ 239          //º¯Êý¹¦ÄÜ£º »ñÈ¡AD×ª»»½á¹û£¬¾­¹ý¼òµ¥´¦Àí
+ 240          //ÊäÈë²ÎÊý£º adc_ch:ad×ª»»Í¨µÀ
+ 241          //Êä³ö²ÎÊý£º ´¦ÀíºóµÄadÖµ
+ 242          //·µ »Ø Öµ£º ÎÞ
+ 243          //-----------------------------------------------------------------//  
+ 244          #if     ADC_FILTER_EN
+                      uchar ADC_Obtain(uchar adc_ch)
+                      {
+                              uchar   ad_val[3]={0,0,0};
+                              uchar   i,j;
+                              
+                              for(i=0;i<3;i++)
+                              {
+                                      ad_val[i]=Get_ADC(adc_ch);
+                              }
+                              //½«×îÐ¡µÄÖµÒÆµ½×îºó
+                              for(i=0;i<2;i++)
+                              {
+                                      if(ad_val[i]<ad_val[i+1])
+                                      {
+                                              j=ad_val[i];
+                                              ad_val[i]=ad_val[i+1];
+                                              ad_val[i+1]=j;
+                                      }
+                              }
+                              //È¡³ö½ÏÐ¡µÄÖµ¼´ÎªÖÐ¼äÖµ
+                              if(ad_val[0]<ad_val[1])
+                              {
+                                      i=ad_val[0];
+                              }
+                              else
+                              {
+                                      i=ad_val[1];
+                              }
+              
+                              return  i;
+                                      
+                      }
+              #else   
+ 278                  uchar ADC_Obtain(uchar adc_ch)
+ 279                  {
+ 280   1                      uchar   i;
+ 281   1                      i=Get_ADC(adc_ch);
+ 282   1                      return  i;              
+ 283   1              }               
+ 284          #endif  
+ 285          
+ 286          
+ 287          #endif
+ 288          #endif
+ 289          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    302    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.0.0   XS16TK06X_ADC                                                     05/09/2023 16:49:05 PAGE 6   
+
+   BIT SIZE         =      1    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

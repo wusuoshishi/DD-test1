@@ -1,0 +1,763 @@
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TOUCH_MCU_INIT
+OBJECT MODULE PLACED IN .\Output\Touch_MCU_Init.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Project\Touch_MCU_Init.c OMF2 OPTIMIZE(8,SPEED) BROWSE 
+                    -INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\Touch_MCU_Init.lst) OBJECT(.\Output\Touch_MCU_In
+                    -it.obj)
+
+line level    source
+
+   1          #include "Config.h"
+   2          //#include      ".\Application_Library\Global.h"
+   3          
+   4          /********************************************************************
+   5          工程名称:暖菜机 XS-FC-OLK-01-011-B
+   6          芯片:XS16TK06F-16SOP 
+   7          关键字:继电器,4键触摸,2位5线数码管,短按,长按,长按连续,非隔离
+   8          注意事项:
+   9          创建日期:2022年10月7日14:38:14
+  10          修改日期:2022年10月7日14:38:17
+  11          *********************************************************************/
+  12          /*700W
+  13          ;轻触按钮:□ ,触摸按钮:◎ ,LED:★
+  14          ;;                        _    _  . _    _ 
+  15          ;                        /_/  /_/  /_/  /_/     
+  16          ;                       /_/  /_/  /_/  /_/
+  17          ;
+  18          ;       ★爆炒(L1)    ★炖煮(L2)        ★清蒸(L3)       
+  19          ;         
+  20          ;       ★慢炖(L4)    ★牛排(L5)        ★火锅(L6)        
+  21          ;                       
+  22          ;       ◎预约/保温(KEY1)        ◎功能/取消(KEY2)              
+  23          ;       ◎减(KEY3)                      ◎加(KEY4)                                                                                                              
+  24          */
+  25          
+  26          //*******************************************************************
+  27          //************************MCU基本信息*********************************
+  28          //◆ 内核：高速 8051
+  29          //      § 工作频率： 12MHz、 6MHz、 4MHz、 1MHz
+  30          //      § 时钟偏差： ±1% @-20℃~65℃, 5V
+  31          //                              ±3% @-40℃~85℃, 5V
+  32          //◆ 存储器（SMTP）
+  33          //      § CODE： 16K Bytes
+  34          //      § DATA： 1K Bytes
+  35          //      § SRAM： 256 Bytes(data)+512 Bytes(xdata)
+  36          //      § 支持 BOOT 功能区， 1/2/3/4K 可选
+  37          //◆ 时钟源，复位和电源管理
+  38          //      § 内部低速时钟 LIRC： 32kHz， 时钟偏差：
+  39          //        ±10%@25℃, 5V， ±20% @-40℃~85℃, 5V
+  40          //      § 内部高速 RC 振荡器： 1MHz
+  41          //      § 外部晶体振荡器： 32768Hz/4MHz
+  42          //      § 8 种复位， 掉电复位电压（BOR）：
+  43          //        2.8V/3.3V/3.7V/4.2V
+  44          //      § 低电压检测： 2.7V/3.0V/3.3V/3.6V/3.9V/4.2V
+  45          //◆ IO
+  46          //      § PB 口内置上拉/下拉电阻 28k，其他 IO 口内置上
+  47          //        拉电阻 4.7k
+  48          //      § 大灌电流口(PB0~PB7)
+  49          //      § 支持器件外设功能复用
+  50          //      § 所有 IO 口都支持外部中断功能， INT0~2 外部中
+  51          //        断(上升沿、下降沿、双沿)， INT3 共用中断源(上
+  52          //        升沿、下降沿)
+  53          //◆ 通信模块
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 2   
+
+  54          //      § 2xUART 通信，支持 IO 映射
+  55          //      § 1xIIC 硬件从机通信，支持 100kHz/400kHz
+  56          //◆ 16-bit PWM
+  57          //      § PWM0 支持 4 路通道，共用周期， 占空比和极性
+  58          //可配
+  59          //      § PWM1/2 均支持 1 路通道输出
+  60          //◆ 工作电压： 2.7V ~ 5.5V
+  61          //◆ 工作温度： -40℃ ~ 85℃
+  62          //      § 增强型工业级，符合 JESD 工业级可靠性认
+  63          //证标准
+  64          //◆ 高精度 12 位 ADC
+  65          //      § 最多可达 26 个模拟输入通道
+  66          //      § 参考电压： VCC/2V/4V
+  67          //◆ 中断
+  68          //      § 两级中断优先级可选
+  69          //      § ADC， CSD， INT0/1/2/3， LVDT，
+  70          //        Timer0/1/2， WDT， UART0/1， IIC
+  71          //◆ 定时器
+  72          //      § 3 个 16 位 Timer
+  73          //      § Timer2 时钟源为内部低速时钟 LIRC32k 或
+  74          //        外部晶振 32768Hz/4MHz
+  75          //      § 看门狗定时器，溢出时间 18ms 到 2.304s
+  76          //◆ 低功耗模式
+  77          //      § 空闲模式和休眠模式
+  78          //      § 深度休眠，功耗 7μA @5V 典型
+  79          //◆ 触摸按键
+  80          //      § 各按键的灵敏度可独立设置
+  81          //      § 电容按键，均可复用为 GPIO
+  82          //◆ 两线烧录单线调试仿真接口
+  83          //◆ 封装
+  84          //      § SOP16/SOP20/SOP28
+  85          
+  86          
+  87          //*******************************************************************
+  88          //***************************整体概述*********************************
+  89          //XS16TK06X 采用高速 8051 内核， 1T 指令周期，相比于标准的 8051(12T)指令周期，具
+  90          //有更快的运行速度，同时兼容标准 8051 指令。
+  91          //XS16TK06X 包含外设有看门狗、 按键检测、 IIC、 UART、低电压检测、掉电复位、 3 路
+  92          //16bit PWM、 Timer0、 Timer1、 Timer2、 12bit 高精度逐次逼近 ADC、低功耗模式等。
+  93          //XS16TK06X 集成的电容检测通道，它可以用来检测近距离感应或者触摸。其内置
+  94          //MCU，可灵活配置；通过配置可实现按键、滚轮、滑条等多种应用。按键都能独立运行，
+  95          //并且每个按键都能通过对相应的功能寄存器来调节灵敏度。
+  96          
+  97          //**************************************************************************
+  98          //*********************************MCU引脚图*********************************
+  99          //**************************************************************************
+ 100          /*
+ 101                                                        ┏━━━━┓  ┏━━━━┓
+ 102                       PWM2_A1/INT3_15/ADC15/SNS15/PC7 ━┃1   ┗━━┛  20┃━ PD0/SNS16/ADC16/INT0/PWM1_A
+ 103                       PWM1_A1/INT3_14/ADC14/SNS14/PC6 ━┃2         19┃━ PD1/SNS17/ADC17/INT3_16/PWM2_A
+ 104                       PWM0_D1/INT3_13/ADC13/SNS13/PC5 ━┃3         18┃━ PD2/SNS18/ADC18/INT3_17/XTAL_OUT
+ 105                               INT3_12/ADC12/SNS12/PC4 ━┃4         17┃━ PD3/SNS19/ADC19/INT3_18/XTAL_IN
+ 106                       PWM0_C1/INT3_11/ADC11/SNS11/PC3 ━┃5         16┃━ PD4/SNS20/ADC20/INT3_19/RXD0_C
+ 107                               INT3_10/ADC10/SNS10/PC2 ━┃6         15┃━ PD5/SNS21/ADC21/INT3_20/TXD0_C
+ 108          SDA0_B/RXD0_D/PWM0_B1/INT3_8/ADC08/SNS08/PC0 ━┃7         14┃━ PD6/SNS22/ADC22/INT1/RXD0_E/SDA0_C
+ 109                    TXD1_B/COM7/INT3_7/ADC07/SNS07/PB7 ━┃8         13┃━ PD7/SNS23/ADC23/INT2/RXD0_F
+ 110                                                   VSS ━┃9         12┃━ PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TX
+             -D0_F/PGC
+ 111                                                   VCC ━┃10        11┃━ PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SD
+             -A0_A/SCL0_C/SWE/PGD
+ 112                                                        ┗━━━━━━━━━━━━┛
+ 113                                                                                                       XS16TK06A
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 3   
+
+ 114          */
+ 115          //************************************************************************************
+ 116          /*
+ 117                                                        ┏━━━━┓  ┏━━━━┓
+ 118                      XTAL_OUT/INT3_17/ADC18/SNS18/PD2 ━┃1   ┗━━┛  28┃━ PD3/SNS19/ADC19/INT3_18/XTAL_IN
+ 119                        PWM2_A/INT3_16/ADC17/SNS17/PD1 ━┃2         27┃━ PD4/SNS20/ADC20/INT3_19/RXD0_C
+ 120                           PWM1_A/INT0/ADC16/SNS16/PD0 ━┃3         26┃━ PD5/SNS21/ADC21/INT3_20/TXD0_C
+ 121                       PWM2_A1/INT3_15/ADC15/SNS15/PC7 ━┃4         25┃━ PD6/SNS22/ADC22/INT1/RXD0_E/SDA0_C
+ 122                       PWM1_A1/INT3_14/ADC14/SNS14/PC6 ━┃5         24┃━ PD7/SNS23/ADC23/INT2/RXD0_F
+ 123                       PWM0_D1/INT3_13/ADC13/SNS13/PC5 ━┃6         23┃━ PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TX
+             -D0_F/PGC
+ 124                               INT3_12/ADC12/SNS12/PC4 ━┃7         22┃━ PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SD
+             -A0_A/SCL0_C/SWE/PGD
+ 125                       PWM0_C1/INT3_11/ADC11/SNS11/PC3 ━┃8         21┃━ VCC
+ 126                               INT3_10/ADC10/SNS10/PC2 ━┃9         20┃━ VSS
+ 127                         TXD0_D/INT3_9/ADC09/SNS09/PC1 ━┃10        19┃━ PB0/SNS00/ADC00/INT3_0/COM0/PWM0_A
+ 128          SDA0_B/RXD0_D/PWM0_B1/INT3_8/ADC08/SNS08/PC0 ━┃11        18┃━ PB1/SNS01/ADC01/INT3_1/COM1/PWM0_B/RXD1_
+             -A
+ 129                    TXD1_B/COM7/INT3_7/ADC07/SNS07/PB7 ━┃12        17┃━ PB2/SNS02/ADC02/INT3_2/COM2/PWM0_C/TXD1_
+             -A
+ 130                    RXD1_B/COM6/INT3_6/ADC06/SNS06/PB6 ━┃13        16┃━ PB3/SNS03/ADC03/INT3_3/COM3/PWM0_D/RXD0_
+             -B
+ 131            SCL0_B/PWM0_A1/COM5/INT3_5/ADC05/SNS05/PB5 ━┃14        15┃━ PB4/SNS04/ADC04/INT3_4/COM4/TXD0_B
+ 132                                                        ┗━━━━━━━━━━━━┛
+ 133                                                                                                       XS16TK05B
+ 134          */
+ 135          //************************************************************************************
+ 136          /*
+ 137                                                        ┏━━━━┓  ┏━━━━┓
+ 138                       PWM0_C1/INT3_11/ADC11/SNS11/PC3 ━┃1   ┗━━┛  28┃━ PC4/SNS12/ADC12/INT3_12
+ 139                               INT3_10/ADC10/SNS10/PC2 ━┃2         27┃━ PC5/SNS13/ADC13/INT3_13/PWM0_D1
+ 140                         TXD0_D/INT3_9/ADC09/SNS09/PC1 ━┃3         26┃━ PC6/SNS14/ADC14/INT3_14/PWM1_A1
+ 141          SDA0_B/RXD0_D/PWM0_B1/INT3_8/ADC08/SNS08/PC0 ━┃4         25┃━ PC7/SNS15/ADC15/INT3_15/PWM2_A1
+ 142                    TXD1_B/COM7/INT3_7/ADC07/SNS07/PB7 ━┃5         24┃━ PD0/SNS16/ADC16/INT0/PWM1_A
+ 143                    RXD1_B/COM6/INT3_6/ADC06/SNS06/PB6 ━┃6         23┃━ PD1/SNS17/ADC17/INT3_16/PWM2_A
+ 144            SCL0_B/PWM0_A1/COM5/INT3_5/ADC05/SNS05/PB5 ━┃7         22┃━ PD2/SNS18/ADC18/INT3_17/XTAL_OUT
+ 145                    TXD0_B/COM4/INT3_4/ADC04/SNS04/PB4 ━┃8         21┃━ PD3/SNS19/ADC19/INT3_18/XTAL_IN
+ 146             RXD0_B/PWM0_D/COM3/INT3_3/ADC03/SNS03/PB3 ━┃9         20┃━ PD4/SNS20/ADC20/INT3_19/RXD0_C
+ 147             TXD1_A/PWM0_C/COM2/INT3_2/ADC02/SNS02/PB2 ━┃10        19┃━ PD5/SNS21/ADC21/INT3_20/TXD0_C
+ 148             RXD1_A/PWM0_B/COM1/INT3_1/ADC01/SNS01/PB1 ━┃11        18┃━ PD6/SNS22/ADC22/INT1/RXD0_E/SDA0_C
+ 149                    PWM0_A/COM0/INT3_0/ADC00/SNS00/PB0 ━┃12        17┃━ PD7/SNS23/ADC23/INT2/RXD0_F
+ 150                                                   VSS ━┃13        16┃━ PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TX
+             -D0_F/PGC
+ 151                                                   VCC ━┃14        15┃━ PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SD
+             -A0_A/SCL0_C/SWE/PGD
+ 152                                                        ┗━━━━━━━━━━━━┛
+ 153                                                                                                           XS16TK05C
+ 154          
+ 155          */
+ 156          //************************************************************************************
+ 157          /*
+ 158                                                        ┏━━━━┓  ┏━━━━┓
+ 159          SWE2/PGD2/SDA0_C/RXD0_E/INT1/ADC22/SNS22/PD6 ━┃1   ┗━━┛  16┃━ PD7/SNS23/ADC23/INT2/RXD0_F/PGC2
+ 160                                   XTAL_IN/INT3_18/ADC19/SNS19/PD3 ━┃2         15┃━ PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TXD0_F/PGC0
+ 161                                  XTAL_OUT/INT3_17/ADC18/SNS18/PD2 ━┃3         14┃━ PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SDA0_A/SCL0
+             -_C/SWE0/PGD0
+ 162                                    PWM2_A/INT3_16/ADC17/SNS17/PD1 ━┃4         13┃━ VCC
+ 163                            RXD1_B/COM6/INT3_6/ADC06/SNS06/PB6 ━┃5         12┃━ VSS
+ 164            SCL0_B/PWM0_A1/COM5/INT3_5/ADC05/SNS05/PB5 ━┃6         11┃━ PB0/SNS00/ADC00/INT3_0/COM0/PWM0_A
+ 165                            TXD0_B/COM4/INT3_4/ADC04/SNS04/PB4 ━┃7         10┃━ PB1/SNS01/ADC01/INT3_1/COM1/PWM0_B/RXD1_A
+ 166             RXD0_B/PWM0_D/COM3/INT3_3/ADC03/SNS03/PB3 ━┃8          9┃━ PB2/SNS02/ADC02/INT3_2/COM2/PWM0_C/TXD1_
+             -A
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 4   
+
+ 167                                                        ┗━━━━━━━━━━━━┛
+ 168                                                                                                           XS16TK05F
+ 169          */
+ 170          
+ 171          /*-------------------------------------------------------------------------------------
+ 172                                                I/0口对应简介
+ 173          ---------------------------------------------------------------------------------------
+ 174          ;芯片型号:XS16TK06A
+ 175          |(01)PC7/SNS15/ADC15/INT3_15/PWM2_A1                    <--> KEY2 功能/取消                                     SEG5            
+ 176          |(02)PC6/SNS14/ADC14/INT3_14/PWM1_A1                    <--> KEY4 加                                    SEG2            
+ 177          |(03)PC5/SNS13/ADC13/INT3_13/PWM0_D1                    <--> JDQ 高驱                           SEG4            
+ 178          |(04)PC4/SNS12/ADC12/INT3_12                                    <--> SEG9 L1- L3- L4- L6-               SEG6            
+ 179          |(05)PC3/SNS11/ADC11/INT3_11/PWM0_C1                    <--> zero                                       KKG_A           
+ 180          |(06)PC2/SNS10/ADC10/INT3_10                                    <--> NTC/BUZ                            NTC_A/BUZ       
+ 181          |(07)PC0/SNS08/ADC08/INT3_8/PWM0_B1/RXD0_D              <--> KEY1 预约/保温                                     NTC_B           
+ 182          |(08)PB7/SNS07/ADC07/INT3_7/TXD1_B                              <--> KEY3 减                                    ZERO            
+ 183          |(09)VSS                                                                                <--> 0V                                         0V              
+ 184          |(10)VCC                                                                                <--> 5V                                         5V      
+ 185          
+ 186          |(11)PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E              <--> KKG 低驱                           KEY6    
+ 187          |(12)PA0/SNS24/ADC24/INT3_21/RXD0_A/TXD0_F              <--> SEG8 L1+                           KEY5    
+ 188          |(13)PD7/SNS23/ADC23/INT2/RXD0_F                                <--> SEG7 L4+                           KEY4    
+ 189          |(14)PD6/SNS22/ADC22/INT1/RXD0_E                                <--> SEG4                                       KEY3    
+ 190          |(15)PD5/SNS21/ADC21/INT3_20/TXD0_C                             <--> SEG3 L2+                           KEY2    
+ 191          |(16)PD4/SNS20/ADC20/INT3_19/RXD0_C                             <--> SEG10 L2- L5-                      KEY1    
+ 192          |(17)PD3/SNS19/ADC19/INT3_18/XTAL_IN                    <--> SEG2 L5+                           OUT_B   
+ 193          |(18)PD2/SNS18/ADC18/INT3_17/XTAL_OUT                   <--> SEG1                                       SEG1    
+ 194          |(19)PD1/SNS17/ADC17/INT3_16/PWM2_A                             <--> SEG6 L6+                           SEG7    
+ 195          |(20)PD0/SNS16/ADC16/INT0/PWM1_A                                <--> SEG5 L3+                           SEG3    
+ 196          */
+ 197          
+ 198          /*-------------------------------------------------------------------------------------
+ 199                                                I/0口对应简介
+ 200          -------------------------------------------------------------------------------------
+ 201          ;芯片型号:XS16TK06B
+ 202          |(01)PD2/SNS18/ADC18/INT3_17/XTAL_OUT                                                           <-->    
+ 203          |(02)PD1/SNS17/ADC17/INT3_16/PWM2_A                                                                     <-->    
+ 204          |(03)PD0/SNS16/ADC16/INT0/PWM1_A                                                                        <-->    
+ 205          |(04)PC7/SNS15/ADC15/INT3_15/PWM2_A1                                                            <-->    
+ 206          |(05)PC6/SNS14/ADC14/INT3_14/PWM1_A1                                                            <-->    
+ 207          |(06)PC5/SNS13/ADC13/INT3_13/PWM0_D1                                                            <-->    
+ 208          |(07)PC4/SNS12/ADC12/INT3_12                                                                            <-->    
+ 209          |(08)PC3/SNS11/ADC11/INT3_11/PWM0_C1                                                            <-->    
+ 210          |(09)PC2/SNS10/ADC10/INT3_10                                                                            <-->    
+ 211          |(10)PC1/SNS09/ADC09/INT3_9/TXD0_D                                                                      <-->    
+ 212          |(11)PC0/SNS08/ADC08/INT3_8/PWM0_B1/RXD0_D/SDA0_B                                       <-->    
+ 213          |(12)PB7/SNS07/ADC07/INT3_7/COM7/TXD1_B                                                         <-->    
+ 214          |(13)PB6/SNS06/ADC06/INT3_6/COM6/RXD1_B                                                         <-->    
+ 215          |(14)PB5/SNS05/ADC05/INT3_5/COM5/PWM0_A1/SCL0_B                                         <-->
+ 216          
+ 217          |(15)PB4/SNS04/ADC04/INT3_4/COM4/TXD0_B                                                         <-->    
+ 218          |(16)PB3/SNS03/ADC03/INT3_3/COM3/PWM0_D/RXD0_B                                          <-->    
+ 219          |(17)PB2/SNS02/ADC02/INT3_2/COM2/PWM0_C/TXD1_A                                          <-->    
+ 220          |(18)PB1/SNS01/ADC01/INT3_1/COM1/PWM0_B/RXD1_A                                          <-->    
+ 221          |(19)PB0/SNS00/ADC00/INT3_0/COM0/PWM0_A                                                         <-->    
+ 222          |(20)VSS                                                                                                                        <-->    
+ 223          |(21)VCC                                                                                                                        <-->    
+ 224          |(22)PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SDA0_A/SCL0_C/SWE0/PGD0      <-->    
+ 225          |(23)PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TXD0_F/PGC0                          <-->    
+ 226          |(24)PD7/SNS23/ADC23/INT2/RXD0_F/PGC2                                                           <-->    
+ 227          |(25)PD6/SNS22/ADC22/INT1/RXD0_E/SDA0_C/SWE2/PGD2                                       <-->    
+ 228          |(26)PD5/SNS21/ADC21/INT3_20/TXD0_C/PGC1                                                        <-->    
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 5   
+
+ 229          |(27)PD4/SNS20/ADC20/INT3_19/RXD0_C/SWE1/PGD1                                           <-->    
+ 230          |(28)PD3/SNS19/ADC19/INT3_18/XTAL_IN                                                            <-->            
+ 231          */
+ 232          
+ 233          /*-------------------------------------------------------------------------------------
+ 234                                                I/0口对应简介
+ 235          ;;-------------------------------------------------------------------------------------
+ 236          ;芯片型号:XS16TK06C
+ 237          |(01)PC3/SNS11/ADC11/INT3_11/PWM0_C1                    <-->    
+ 238          |(02)PC2/SNS10/ADC10/INT3_10                                    <-->    
+ 239          |(03)PC1/SNS09/ADC09/INT3_9/TXD0_D                              <-->    
+ 240          |(04)PC0/SNS08/ADC08/INT3_8/PWM0_B1/RXD0_D              <-->    
+ 241          |(05)PB7/SNS07/ADC07/INT3_7/COM7/TXD1_B                         <-->    
+ 242          |(06)PB6/SNS06/ADC06/INT3_6/COM6/RXD1_B                         <-->    
+ 243          |(07)PB5/SNS05/ADC05/INT3_5/COM5/COM5/PWM0_A1           <-->    
+ 244          |(08)PB4/SNS04/ADC04/INT3_4/COM4/TXD0_B                         <-->    
+ 245          |(09)PB3/SNS03/ADC03/INT3_3/COM3/PWM0_D/RXD0_B          <-->    
+ 246          |(10)PB2/SNS02/ADC02/INT3_2/COM2/PWM0_C/TXD1_A          <-->    
+ 247          |(11)PB1/SNS01/ADC01/INT3_1/COM1/PWM0_B/RXD1_A          <-->    
+ 248          |(12)PB0/SNS00/ADC00/INT3_0/COM0/PWM0_A                         <-->    
+ 249          |(13)VSS                                                                                <-->    
+ 250          |(14)VCC                                                                                <-->    
+ 251          
+ 252          |(15)PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E              <-->    
+ 253          |(16)PA0/SNS24/ADC24/INT3_21/RXD0_A/TXD0_F              <-->    
+ 254          |(17)PD7/SNS23/ADC23/INT2/RXD0_F                                <-->    
+ 255          |(18)PD6/SNS22/ADC22/INT1/RXD0_E                                <-->    
+ 256          |(19)PD5/SNS21/ADC21/INT3_20/TXD0_C                             <-->    
+ 257          |(20)PD4/SNS20/ADC20/INT3_19/RXD0_C                             <-->    
+ 258          |(21)PD3/SNS19/ADC19/INT3_18/XTAL_IN                    <-->    
+ 259          |(22)PD2/SNS18/ADC18/INT3_17/XTAL_OUT                   <-->    
+ 260          |(23)PD1/SNS17/ADC17/INT3_16/PWM2_A                             <-->    
+ 261          |(24)PD0/SNS16/ADC16/INT0/PWM1_A                                <-->    
+ 262          |(25)PC7/SNS15/ADC15/INT3_15/PWM2_A1                    <-->    
+ 263          |(26)PC6/SNS14/ADC14/INT3_14/PWM1_A1                    <-->    
+ 264          |(27)PC5/SNS13/ADC13/INT3_13/PWM0_D1                    <-->    
+ 265          |(28)PC4/SNS12/ADC12/INT3_12                                    <-->            
+ 266          */
+ 267          /*-------------------------------------------------------------------------------------
+ 268                                                I/0口对应简介
+ 269          ;;-------------------------------------------------------------------------------------
+ 270          ;芯片型号:XS16TK06F
+ 271          |(01)PD6/SNS22/ADC22/INT1/RXD0_E/SDA0_C/PGD2/SWE2               <--> KEY3
+ 272          |(02)PD3/SNS19/ADC19/INT3_18/XTAL_IN                                    <--> JDQ 高驱
+ 273          |(03)PD2/SNS18/ADC18/INT3_17/XTAL_OUT                                   <--> COM1 LED共阴
+ 274          |(04)PD1/SNS17/ADC17/INT3_16/PWM2_A                                             <--> SEG1 LED1+
+ 275          |(05)PB6/ADC06/INT3_6/COM6/RXD1_B                                               <--> SEG2 LED3+
+ 276          |(06)PB5/SNS05/ADC05/INT3_5/COM5/PWM0_A1/SCL0_B                 <--> SEG3
+ 277          |(07)PB4/SNS04/ADC04/INT3_4/COM4/TXD0_B                                 <--> NTC 27K上拉 100kNTC
+ 278          |(08)PB3/SNS03/ADC03/INT3_3/COM3/PWM0_D/RXD0_B                  <--> KEY1 
+ 279          
+ 280          |(09)PB2/SNS02/ADC02/INT3_2/COM2/PWM0_C/TXD1_A                  <--> BUZ 低驱   ZERO
+ 281          |(10)PB1/SNS01/ADC01/INT3_1/COM1/PWM0_B/RXD1_A                  <--> SEG5 LED2+
+ 282          |(11)PB0/SNS00/ADC00/INT3_0/COM0/PWM0_A                                 <--> SEG4 LED4+
+ 283          |(12)VSS                                                                                                <--> 0V
+ 284          |(13)VCC                                                                                                <--> 5V
+ 285          |(14)PA1/SNS25/ADC25/INT3_22/TXD0_A/TXD0_E/SDA0_A/PGD0  <--> KEY2
+ 286          |(15)PA0/SNS24/ADC24/INT3_21/RXD0_A/SCL0_A/TXD0_F/PGC0  <--> KEY4
+ 287          |(16)PD7/SNS23/ADC23/INT2/RXD0_F/PGC2                                   <--> ZERO               BUZ 低驱        
+ 288          */
+ 289          
+ 290          /*功能描述
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 6   
+
+ 291          GPIO<PA0-PA7><PB0-PB7><PC0-PC7><PD0-PD7>
+ 292          COM0-COM7: 大灌电流口
+ 293          SNS0-SNS25: 触摸按键通道 
+ 294          ADC0-ADC25: ADC 通道
+ 295          INT1: 外部中断 1
+ 296          INT2: 外部中断 2
+ 297          INT3_0-INT3_22: 外部中断 3  
+ 298          PWM0_X (A,B,C,D,A1,B1,C1,D1):PWM0 输出口
+ 299          PWM1_X (A,A1):PWM1 输出口
+ 300          PWM2_X (A,A1):PWM2 输出口
+ 301          XTAL_OUT: 外部晶振输出
+ 302          XTAL_IN: 外部晶振输入
+ 303          
+ 304          SWE1: 单线仿真口
+ 305          SWE2: 单线仿真口
+ 306          PGD2: 烧录口
+ 307          */
+ 308          
+ 309          //-----------------------------------------------------------------//
+ 310          //函数名称： void CFG_Check(void)
+ 311          //函数功能： 配置字对比判断(对应MCU04芯片)
+ 312          //输入参数： 无
+ 313          //输出参数： 无
+ 314          //返 回 值： 无
+ 315          //-----------------------------------------------------------------//
+ 316          uchar xdata CFG_Rb = 80;
+ 317          void CFG_Check(void)
+ 318          {   
+ 319   1              unsigned char i = 0;
+ 320   1              unsigned int    code add_cfg[9] =     {0x407F,0x407D,0x407B,0x4079,0x4077,0x4075,0x4073,0x4071,0x406F};
+ 321   1              unsigned char code add_cfg_Bit[9] = {0x00,       0x1F,  0x3F,    0xFF,  0xFF,    0xFF,  0x3F,    0xFF,  0x7F};
+ 322   1              uint rom_offset = 0;
+ 323   1              EA = 0;//关总中断
+ 324   1              REG_ADDR = 0x23;
+ 325   1              rom_offset = ((uint)REG_DATA)<<8;
+ 326   1              REG_ADDR = 0x22;
+ 327   1              rom_offset |= REG_DATA;
+ 328   1              for(i = 1; i < 9;i++)
+ 329   1              {
+ 330   2                      REG_ADDR = i+1;
+ 331   2              
+ 332   2                      if((CBYTE[add_cfg[i]-rom_offset]&add_cfg_Bit[i]) != (REG_DATA&add_cfg_Bit[i]))
+ 333   2                      {
+ 334   3                              SOFT_RST = 0x55;
+ 335   3                      }       
+ 336   2              }
+ 337   1              
+ 338   1              if((CBYTE[0x404D-rom_offset] >= 64)&&(CBYTE[0x404D-rom_offset] <= 96))
+ 339   1              {
+ 340   2                      CFG_Rb=CBYTE[0x404D-rom_offset];
+ 341   2              }
+ 342   1      
+ 343   1              P2_XH = 0;//使用MOVX 操作PDATA区时，P2_XH清0
+ 344   1              EA = 1;//开总中断       
+ 345   1              
+ 346   1      }
+ 347          //-----------------------------------------------------------------//
+ 348          //函数名称： void Delay_Us(uint us)
+ 349          //函数功能： 延时为几us
+ 350          //输入参数： us
+ 351          //输出参数： 无
+ 352          //返 回 值： 无
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 7   
+
+ 353          //-----------------------------------------------------------------//
+ 354          
+ 355          
+ 356          //void Delay_Us(uint us)//1--2.38us@12MHz;10-11.8us@12MHz;100-106us@12MHz;1000-1.045ms
+ 357          //{
+ 358          //      for (; us > 0; us--)
+ 359          //      {       
+ 360          //              WDT_CTRL = 0x07;
+ 361          //      }               
+ 362          //}
+ 363           
+ 364          
+ 365          //-----------------------------------------------------------------//
+ 366          //函数名称： void Bor_Init(void)
+ 367          //函数功能： 掉电复位初始化
+ 368          //输入参数： 无 
+ 369          //输出参数： 无
+ 370          //返 回 值： 无
+ 371          //-----------------------------------------------------------------//
+ 372          void Bor_Init(void) 
+ 373          {
+ 374   1              EA = 0;
+ 375   1              V_BOR_SET(2);//设置掉电复位点:(0/1-保留)-(2-2.8V)-(3-3.3V)-(4-3.7V)-(5/6/7-4.2V)
+ 376   1              BOR_DELAY_SET(1);//0延时1，1延时2;(延时参数见规格书)
+ 377   1              
+ 378   1              BOR_ON;//开启掉电复位
+ 379   1              EA = 1;
+ 380   1      }
+ 381          
+ 382          //-----------------------------------------------------------------//
+ 383          //函数名称： void Set_Sys_Clk(void)
+ 384          //函数功能： 系统时钟设置
+ 385          //输入参数： 无 
+ 386          //输出参数： 无
+ 387          //返 回 值： 无
+ 388          //-----------------------------------------------------------------//
+ 389          void Set_Sys_Clk(void) 
+ 390          {
+ 391   1              SYS_CLK_SET(SYSCLK_SEL);//系统时钟选择0-12MHz,1-6MHZ,2-4MHZ,3-1MHz
+ 392   1      }
+ 393           
+ 394          
+ 395          //-----------------------------------------------------------------//
+ 396          //函数名称： void Pow_Delay(uint t)
+ 397          //函数功能： 上电延时函数，根据实际应用情况选择调用。
+ 398          //输入参数： t
+ 399          //输出参数： 无
+ 400          //返 回 值： 无
+ 401          //-----------------------------------------------------------------//
+ 402          
+ 403          
+ 404          
+ 405          //void Pow_Up_Delay(uint ms)//1--1ms@12MHz;10-10.05ms@12MHz;100-100ms*2@12MHz;1000-1000ms
+ 406          //{  
+ 407          //      uint a = 954,b = ms;
+ 408          
+ 409          //      for (b = ms; b > 0; b--)
+ 410          //      {
+ 411          //              for (a = 954; a > 0; a--)
+ 412          //              {
+ 413          //                      WDT_CTRL = 0x07;
+ 414          //              } 
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 8   
+
+ 415          //      }       
+ 416          
+ 417          //}
+ 418          
+ 419          
+ 420          //-----------------------------------------------------------------//
+ 421          //函数名称： void Delay_Ms(uint t)
+ 422          //函数功能： ms延时函数
+ 423          //输入参数： t
+ 424          //输出参数： 无
+ 425          //返 回 值： 无
+ 426          //-----------------------------------------------------------------//
+ 427          
+ 428          
+ 429          //      void Delay_Ms(uint ms)//1--1ms@12MHz;10-10.05ms@12MHz;100-100ms@12MHz;1000-1000ms
+ 430          //      {  
+ 431          //              uint a = 954,b = ms;
+ 432          //              for (b = ms; b > 0; b--)
+ 433          //              {
+ 434          //                      for (a = 954; a > 0; a--)
+ 435          //                      {
+ 436          //                              WDT_CTRL = 0x07;
+ 437          //                      } 
+ 438          //              }       
+ 439          //      }
+ 440                  
+ 441          
+ 442                  
+ 443          
+ 444          
+ 445          //-----------------------------------------------------------------//
+ 446          //函数名称： void WDT_Init(void)
+ 447          //函数功能： 看门狗初始化
+ 448          //输入参数： 无
+ 449          //返 回 值： 无
+ 450          //-----------------------------------------------------------------//
+ 451          void WDT_Init(void)
+ 452          {
+ 453   1      
+ 454   1                      EA = 0;//关总中断；
+ 455   1                      WDT_IP_CLR;//设置WDT中断优级为低，根据实际应运设置优先级
+ 456   1                      WDT_INT_FLAG_CLR;//清除看门狗中断标志
+ 457   1                      WDT_ON_OFF(0);//仅等于0x55时关闭看门狗
+ 458   1                      WDT_CTRL = 7;//设置WDT溢出时间(0~7--18ms~2.304S)7--2.304S
+ 459   1                      WDT_IE_SET;     //开WDT中断使能
+ 460   1                      EA = 1;//开总中断       
+ 461   1      }
+ 462          
+ 463          
+ 464          //-----------------------------------------------------------------//
+ 465          //函数名称： void Init_IO(void)
+ 466          //函数功能： IO口初始化,将没有用到的或悬空的IO口，设置为IO输出为低
+ 467          //输入参数： 无
+ 468          //返 回 值： 无
+ 469          //-----------------------------------------------------------------//
+ 470          void Init_IO(void)
+ 471          {
+ 472   1      
+ 473   1      }
+ 474          
+ 475          //-----------------------------------------------------------------//
+ 476          //函数名称： void Default_Set_IO(void)
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 9   
+
+ 477          //函数功能： 默认IO口设置
+ 478          //输入参数： 无
+ 479          //返 回 值： 无
+ 480          //-----------------------------------------------------------------//
+ 481          void Default_Set_IO(void)
+ 482          {   
+ 483   1      
+ 484   1                      SNS_IO_SEL1 = 0x00;//bit0~bit7-0：设置为IO口；1：设置为SNS；
+ 485   1                      SNS_IO_SEL2 = 0x00;//bit0~bit7-0：设置为IO口；1：设置为SNS；
+ 486   1                      SNS_IO_SEL3 = 0x00;//bit0~bit7-0：设置为IO口；1：设置为SNS；
+ 487   1                      SNS_IO_SEL4 = 0x00;//bit0~bit1-0：设置为IO口；1：设置为SNS；
+ 488   1              
+ 489   1                      /*cubic*/
+ 490   1                      IICCON &= ~0x01;//IIC工作关使能
+ 491   1                      ODRAIN_EN  =b(00000000);        //1：开漏输出； 0：CMOS输出 仅支持PD6/PA1/PA0   
+ 492   1                      COM_IO_SEL =b(00000000);        //1:大电流口 0:正常IO口
+ 493   1                      PD_PB = b(00000000);            //0：设置为下拉不使能；1：设置为下拉使能；
+ 494   1      
+ 495   1      
+ 496   1                      DATAA = b(00000010);    //0：设置为输出低；1：设置为输出高；
+ 497   1                      TRISA = b(00000000);    //0：设置为输出；1：设置为输入；        
+ 498   1                      PU_PA = b(00000000);    //0：设置为上拉不使能；1：设置为上拉使能；
+ 499   1                      
+ 500   1                      DATAB = b(00000000);
+ 501   1                      TRISB = b(00000000);    //b(00010100);
+ 502   1                      PU_PB = b(00000000);
+ 503   1                      
+ 504   1                      DATAC = b(00000000);
+ 505   1                      TRISC = b(00001000);    
+ 506   1                      PU_PC = b(00000000);    
+ 507   1      
+ 508   1                      DATAD = b(00000000);
+ 509   1                      TRISD = b(00000000);    
+ 510   1                      PU_PD = b(00000000);    
+ 511   1      
+ 512   1      }
+ 513          
+ 514          
+ 515          //-----------------------------------------------------------------//
+ 516          //函数名称： void Function_Init(void)
+ 517          //函数功能： 功能模块初始化
+ 518          //输入参数： 无
+ 519          //返 回 值： 无
+ 520          //-----------------------------------------------------------------//
+ 521          void Function_Init(void)
+ 522          {
+ 523   1                      
+ 524   1              #if (TRACEMODE == TRUE)
+                                      XS16TK06X_Trace_Mode_Init(0);//调试模式初始化
+                      #endif
+ 527   1              
+ 528   1              #ifdef Timer0_EN
+ 529   1                      #if Timer0_EN
+ 530   1      
+ 531   1                              Timer0_Init(1000);//定时器0初始化
+ 532   1      
+ 533   1                      #endif
+ 534   1              #endif
+ 535   1              
+ 536   1              #ifdef Timer1_EN
+ 537   1                      #if Timer1_EN
+ 538   1      
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 10  
+
+ 539   1                              Timer1_Init(c_timer1US);//定时器1初始化
+ 540   1      
+ 541   1                      #endif
+ 542   1              #endif
+ 543   1              
+ 544   1              #ifdef Timer2_EN
+ 545   1                      #if Timer2_EN
+                              
+                                      Timer2_Init(1000);//定时器2初始化
+              
+                              #endif
+ 550   1              #endif
+ 551   1              
+ 552   1              #ifdef IDLE_MODE
+ 553   1                      #if IDLE_MODE
+                                      Idle_Wake_Up_Init(5000,3);//Idle初始化
+                              #endif 
+ 556   1              #endif
+ 557   1              
+ 558   1              #ifdef UART0_EN
+ 559   1                      #if(UART0_EN == 1)
+                                      UART0_Init();//UART0初始化
+                              #endif
+ 562   1              #endif
+ 563   1              
+ 564   1              #ifdef UART1_EN
+ 565   1                      #if(UART1_EN == 1)
+                                      UART1_Init();//UART1初始化
+                              #endif
+ 568   1              #endif
+ 569   1              
+ 570   1              #ifdef PWM0_EN
+ 571   1                      #if (PWM0_EN == 1)
+                              
+                                      PWM0_Init();
+                                      
+                                      #if (PWM0_CH0_EN)
+                                      PWM0A_Set(38000,50);
+                                      #endif
+                                      
+                                      #if (PWM0_CH1_EN)
+                                              PWM0B_Set(38000,50);
+                                      #endif
+                                      
+                                      #if (PWM0_CH2_EN)
+                                              //PWM0C_Set(38000,50);
+                                              PWM0C_Set(38000,100);
+                                      #endif
+                                      
+                                      #if (PWM0_CH3_EN)
+                                              PWM0D_Set(38000,50);
+                                      #endif
+              
+                              #endif
+ 593   1              #endif
+ 594   1              
+ 595   1              #ifdef PWM1_EN
+ 596   1                      #if (PWM1_EN == 1)
+                                      PWM1_Init();
+                                      PWM1_Set(1,38000,50);
+                              #endif
+ 600   1              #endif
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 11  
+
+ 601   1              
+ 602   1              #ifdef PWM2_EN
+ 603   1                      #if (PWM2_EN == 1)
+                                      PWM2_Init();
+                                      PWM2_Set(1,38000,50);
+                              #endif
+ 607   1              #endif
+ 608   1              
+ 609   1                      
+ 610   1              #ifdef ExtInt0_EN
+ 611   1                      #if ExtInt0_EN
+                                      ExtInt0_Init(ExtInt0_MODE);
+                              #endif
+ 614   1              #endif
+ 615   1              
+ 616   1              #ifdef ExtInt1_EN
+ 617   1                      #if ExtInt1_EN
+                                      ExtInt1_Init(ExtInt1_MODE);
+                              #endif
+ 620   1              #endif
+ 621   1              
+ 622   1              #ifdef ExtInt2_EN
+ 623   1                      #if ExtInt2_EN
+                                      ExtInt2_Init(ExtInt2_MODE);
+                              #endif
+ 626   1              #endif
+ 627   1              
+ 628   1              #ifdef ExtInt3_EN
+ 629   1                      #if ExtInt3_EN
+                                      ExtInt3_Init(ExtInt3_MODE,ExtInt3_SEL);
+                              #endif
+ 632   1              #endif
+ 633   1              
+ 634   1              #ifdef VolDet_EN
+ 635   1                      #if ((VolDet_EN == 1))
+ 636   1                              LVDT_Init();
+ 637   1                      #endif
+ 638   1              #endif
+ 639   1              
+ 640   1              
+ 641   1              #ifdef EEPROM_EN
+ 642   1                      #if ((EEPROM_EN == 1))
+                                      Eeprom_Init();
+                              #endif
+ 645   1              #endif
+ 646   1              
+ 647   1      
+ 648   1              #ifdef ADC_IS_OPEN
+ 649   1                      #if ADC_IS_OPEN
+ 650   1                              ADC_Init();
+ 651   1                      #endif
+ 652   1              #endif
+ 653   1                      
+ 654   1              #if (TRACEMODE == FALSE)
+ 655   1                      #ifdef IICS_EN
+ 656   1                              #if IICS_EN
+                                              IIC_Slave_Init(0xC0,0);
+                                      #endif
+ 659   1                      #endif
+ 660   1              #endif
+ 661   1              
+ 662   1      
+C51 COMPILER V9.60.0.0   TOUCH_MCU_INIT                                                    05/09/2023 16:49:08 PAGE 12  
+
+ 663   1              #ifdef SNS_NUM
+ 664   1                      #if SNS_NUM
+ 665   1                              //CTK初始化     
+ 666   1                              CTK_Init();
+ 667   1                      #endif
+ 668   1              #endif
+ 669   1      }
+ 670          
+ 671          //-----------------------------------------------------------------//
+ 672          //函数名称： void MCU_Init(void)
+ 673          //函数功能:             MUC初始化
+ 674          //输入参数： 无
+ 675          //返 回 值： 无
+ 676          //-----------------------------------------------------------------//
+ 677          void MCU_Init(void)
+ 678          {        
+ 679   1              //掉电复位初始化
+ 680   1              Bor_Init();
+ 681   1              
+ 682   1              //看门狗初始化
+ 683   1              WDT_Init();
+ 684   1      
+ 685   1              //配置核工作时钟
+ 686   1              Set_Sys_Clk();
+ 687   1              
+ 688   1      
+ 689   1              //配置字对比判断
+ 690   1              CFG_Check();
+ 691   1      
+ 692   1              //IO口默认设置
+ 693   1              Default_Set_IO();
+ 694   1              
+ 695   1              //IO口初始化
+ 696   1              Init_IO();
+ 697   1      
+ 698   1              //功能函数初始化
+ 699   1              Function_Init(); 
+ 700   1              
+ 701   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    279    ----
+   CONSTANT SIZE    =     27    ----
+   XDATA SIZE       =      1    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

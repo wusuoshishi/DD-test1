@@ -1,0 +1,51 @@
+C51 COMPILER V9.60.0.0   XS16TK06X_READ_UID                                                05/09/2023 16:49:06 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE XS16TK06X_READ_UID
+OBJECT MODULE PLACED IN .\Output\XS16TK06X_Read_UID.obj
+COMPILER INVOKED BY: D:\Program_Files\KEIL5_521A\C51\BIN\C51.EXE Source\XS16TK06X_Read_UID.c OMF2 OPTIMIZE(8,SPEED) BROW
+                    -SE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\XS16TK06X_Read_UID.lst) OBJECT(.\Output\XS16T
+                    -K06X_Read_UID.obj)
+
+line level    source
+
+   1          #include "Config.h"
+   2          
+   3          #if INF_READ_EN
+              #pragma message "编译,CHIP_UDI_Read相关函数"
+              /****************************************************************/
+              //函数名：void CHIP_UDI_Read(void)   
+              //功  能：读取芯片唯一识别码
+              //参  数：无
+              //返回值：无
+              /****************************************************************/
+              uchar xdata UID_Buffer[8] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+              void CHIP_UDI_Read(void)  
+              {
+                      uchar i = 0;
+                      EA = 0;
+                      for(i = 0; i < 8; i++)
+                      {
+                              UID_Buffer[i] = CBYTE[0x43A8 + i];
+                      }
+                      EA = 1;
+              }
+              #endif  
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
