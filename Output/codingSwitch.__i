@@ -1,1 +1,0 @@
-"Application_Library\codingSwitch.c" OMF2 OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\codingSwitch.lst) OBJECT(.\Output\codingSwitch.obj)

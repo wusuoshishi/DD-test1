@@ -1,1 +1,0 @@
-"Application_Library\WORK_DEAL.c" OMF2 OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\WORK_DEAL.lst) OBJECT(.\Output\WORK_DEAL.obj)

@@ -1,1 +1,0 @@
-"Project\Touch_MCU_Init.c" OMF2 OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Inc;.\User;.\Application_Library;.\Project) DEBUG PRINT(.\List\Touch_MCU_Init.lst) OBJECT(.\Output\Touch_MCU_Init.obj)
