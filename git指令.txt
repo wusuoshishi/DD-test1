@@ -1,0 +1,10 @@
+git init
+git add file1.txt
+git add file2.txt file3.txt
+git commit -m "add 3 files."
+
+git status
+git diff readme.txt //看看具体修改了什么内容
+
+git log
+如果嫌输出信息太多，看得眼花缭乱的，可以试试加上--pretty=oneline参数：
